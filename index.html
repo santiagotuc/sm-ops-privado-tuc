@@ -1,2100 +1,2049 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex, nofollow" />
-    <title>Agency Smart | Centro de Operaciones SmartMenu</title>
+    <title>Agency Smart | Panel Privado de Operaciones — SmartMenu</title>
+    <script src="config.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+      };
+      if (localStorage.getItem("smartmenu_theme") === "dark") {
+        document.documentElement.classList.add("dark");
+      }
+    </script>
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
       rel="stylesheet"
     />
-    <style>
-      @media print {
-        .no-print {
-          display: none !important;
-        }
-        body {
-          background: #ffffff !important;
-          color: #0f172a !important;
-        }
-        .print-sheet {
-          box-shadow: none !important;
-          border: none !important;
-          padding: 0 !important;
-          margin: 0 !important;
-          max-width: 100% !important;
-        }
-      }
-    </style>
   </head>
-  <body class="bg-slate-100 text-slate-900 font-sans antialiased">
-    <!-- PANTALLA DE BLOQUEO PRIVADA (PIN CIFRADO SHA-256) -->
+  <body
+    class="bg-stone-100 text-stone-900 dark:bg-zinc-950 dark:text-zinc-100 font-sans antialiased pb-20 selection:bg-orange-500 selection:text-white transition-colors"
+  >
+    <!-- ========================================================= -->
+    <!-- PANTALLA DE BLOQUEO POR PIN                               -->
+    <!-- ========================================================= -->
     <div
-      id="lock-screen"
-      class="no-print fixed inset-0 z-50 bg-slate-950/95 backdrop-blur flex items-center justify-center p-4"
+      id="pin-lock-screen"
+      class="fixed inset-0 z-[100] bg-zinc-950/95 backdrop-blur-md flex items-center justify-center p-4"
     >
       <div
-        class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 max-w-sm w-full shadow-2xl text-center space-y-5"
+        class="bg-zinc-900 border border-emerald-800/60 rounded-3xl p-7 w-full max-w-sm text-center shadow-2xl space-y-5"
       >
-        <div
-          class="w-12 h-12 rounded-2xl bg-orange-500 text-white font-black text-lg flex items-center justify-center mx-auto shadow"
-        >
-          AS
-        </div>
-        <div>
-          <h1 class="font-black text-xl text-slate-900">
-            Agency<span class="text-orange-500">Smart</span>
+        <div class="flex flex-col items-center gap-2">
+          <img
+            src="assets/logo-sello.png"
+            alt="Agency Smart"
+            onerror="
+              this.style.display = 'none';
+              this.nextElementSibling.classList.remove('hidden');
+            "
+            class="w-14 h-14 rounded-2xl object-cover border border-emerald-500/40 shadow-lg"
+          />
+          <div
+            class="hidden w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-700 to-emerald-950 border border-emerald-400/30 flex items-center justify-center text-orange-400 font-black text-lg shadow-lg"
+          >
+            SM
+          </div>
+          <span
+            class="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-700/40"
+          >
+            Acceso Privado • Noindex
+          </span>
+          <h1 class="text-2xl font-black text-white">
+            Agency <span class="text-orange-500">Smart</span>
           </h1>
-          <p class="text-xs text-slate-500 mt-1">
-            Acceso privado • Ingresá tu PIN operativo
+          <p class="text-xs text-zinc-400">
+            Ingresá tu PIN operativo para acceder al CRM, tableros SLA y control
+            fiscal ARCA.
           </p>
         </div>
 
-        <form onsubmit="unlockApp(event)" class="space-y-3">
+        <form onsubmit="unlockPanel(event)" class="space-y-3">
           <input
             type="password"
             id="pin-input"
             inputmode="numeric"
             maxlength="8"
+            required
             placeholder="••••"
-            class="w-full text-center tracking-[0.4em] font-black text-xl border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:border-orange-500"
+            class="w-full min-h-[48px] text-center text-xl tracking-[0.4em] font-black rounded-2xl bg-zinc-950 border border-zinc-700 text-white focus:outline-none focus:border-orange-500"
           />
-          <p id="pin-error" class="hidden text-xs font-bold text-rose-600">
-            PIN incorrecto. Probá nuevamente.
+          <p id="pin-error" class="hidden text-xs font-bold text-red-400">
+            PIN incorrecto. Probá nuevamente (PIN por defecto: 2026).
           </p>
           <button
             type="submit"
-            class="w-full py-3 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-black text-sm transition shadow"
+            class="w-full min-h-[48px] bg-orange-500 hover:bg-orange-600 text-white font-black text-sm rounded-2xl shadow-lg transition"
           >
-            <i class="fa-solid fa-lock-open mr-1.5"></i> Ingresar al Panel
+            <i class="fa-solid fa-unlock-keyhole mr-1.5"></i> Desbloquear Panel
           </button>
         </form>
-        <p class="text-[11px] text-slate-400">
-          Protegido con hash SHA-256 y bloqueo automático por inactividad.
+        <p class="text-[11px] text-zinc-500">
+          PIN inicial: <strong class="text-zinc-300">2026</strong> • Podés
+          cambiarlo una vez adentro.
         </p>
       </div>
     </div>
 
-    <!-- BARRA SUPERIOR INTERNA (NO SALE EN EL PDF) -->
-    <header class="no-print bg-slate-900 text-white sticky top-0 z-30 shadow">
+    <!-- ========================================================= -->
+    <!-- CABECERA OPERATIVA                                        -->
+    <!-- ========================================================= -->
+    <header
+      class="sticky top-0 z-40 bg-white/95 dark:bg-zinc-950/90 backdrop-blur-md border-b border-stone-200 dark:border-emerald-900/40"
+    >
       <div
-        class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3"
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2"
       >
         <div class="flex items-center gap-3">
-          <span
-            class="w-9 h-9 rounded-xl bg-orange-500 text-white font-black flex items-center justify-center"
+          <img
+            src="assets/logo-sello.png"
+            alt="Agency Smart"
+            onerror="
+              this.style.display = 'none';
+              this.nextElementSibling.classList.remove('hidden');
+            "
+            class="w-9 h-9 rounded-xl object-cover border border-emerald-500/30 shadow"
+          />
+          <div
+            class="hidden w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-700 to-emerald-950 border border-emerald-400/30 flex items-center justify-center text-orange-400 font-black text-xs shadow"
           >
-            AS
-          </span>
+            SM
+          </div>
           <div>
-            <p class="font-black text-base leading-none">
-              Agency<span class="text-orange-400">Smart</span>
-            </p>
-            <p class="text-[11px] text-slate-400 mt-0.5">
-              Panel Privado • SmartMenu Tucumán / Argentina
+            <div class="flex items-center gap-2">
+              <span
+                class="font-black text-lg tracking-tight text-stone-900 dark:text-white"
+              >
+                Agency <span class="text-orange-500">Smart</span>
+              </span>
+              <span
+                class="hidden sm:inline-block text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300"
+              >
+                SmartMenu Ops
+              </span>
+            </div>
+            <p
+              class="text-[11px] text-stone-500 dark:text-zinc-400 hidden sm:block"
+            >
+              CRM Hiperlocal • SLA 72 hs • Monotributo ARCA • Marketing
             </p>
           </div>
         </div>
 
-        <nav class="flex flex-wrap items-center gap-2">
+        <div class="flex items-center gap-1.5 sm:gap-2">
           <button
-            onclick="switchTab('presupuesto')"
-            id="tab-btn-presupuesto"
-            class="px-3.5 py-2 rounded-xl text-xs font-extrabold bg-orange-500 text-white transition"
+            onclick="exportJSONBackup()"
+            title="Descargar respaldo completo en JSON"
+            class="min-h-[40px] px-3 py-1.5 rounded-xl bg-stone-100 dark:bg-zinc-900 hover:bg-stone-200 dark:hover:bg-zinc-800 border border-stone-300 dark:border-zinc-700 text-xs font-extrabold text-stone-700 dark:text-zinc-200 flex items-center gap-1.5"
           >
-            <i class="fa-solid fa-file-pdf mr-1.5"></i> Presupuesto PDF
+            <i
+              class="fa-solid fa-download text-emerald-600 dark:text-emerald-400"
+            ></i>
+            <span class="hidden md:inline">Backup JSON</span>
           </button>
-          <button
-            onclick="switchTab('mensajes')"
-            id="tab-btn-mensajes"
-            class="px-3.5 py-2 rounded-xl text-xs font-extrabold bg-slate-800 hover:bg-slate-700 text-slate-200 transition"
+
+          <label
+            title="Restaurar respaldo desde archivo JSON"
+            class="min-h-[40px] px-3 py-1.5 rounded-xl bg-stone-100 dark:bg-zinc-900 hover:bg-stone-200 dark:hover:bg-zinc-800 border border-stone-300 dark:border-zinc-700 text-xs font-extrabold text-stone-700 dark:text-zinc-200 flex items-center gap-1.5 cursor-pointer"
           >
-            <i class="fa-brands fa-whatsapp mr-1.5"></i> Mensajes Pro
-          </button>
-          <button
-            onclick="switchTab('ventas')"
-            id="tab-btn-ventas"
-            class="px-3.5 py-2 rounded-xl text-xs font-extrabold bg-slate-800 hover:bg-slate-700 text-slate-200 transition"
-          >
-            <i class="fa-solid fa-book-open mr-1.5"></i> Manual y Ventas
-          </button>
-          <button
-            onclick="switchTab('prompts')"
-            id="tab-btn-prompts"
-            class="px-3.5 py-2 rounded-xl text-xs font-extrabold bg-slate-800 hover:bg-slate-700 text-slate-200 transition"
-          >
-            <i class="fa-solid fa-wand-magic-sparkles mr-1.5"></i> Prompts,
-            Videos y Flyers
-          </button>
+            <i class="fa-solid fa-upload text-sky-600 dark:text-sky-400"></i>
+            <span class="hidden md:inline">Restaurar</span>
+            <input
+              type="file"
+              accept=".json"
+              onchange="importJSONBackup(event)"
+              class="hidden"
+            />
+          </label>
+
           <button
             onclick="changePinPrompt()"
-            title="Cambiar PIN en este dispositivo"
-            class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 transition"
+            title="Cambiar PIN de acceso"
+            class="min-h-[40px] w-10 rounded-xl bg-stone-100 dark:bg-zinc-900 hover:bg-stone-200 dark:hover:bg-zinc-800 border border-stone-300 dark:border-zinc-700 text-stone-700 dark:text-zinc-300 flex items-center justify-center"
           >
-            <i class="fa-solid fa-key"></i>
+            <i class="fa-solid fa-key text-xs"></i>
           </button>
+
           <button
-            onclick="lockApp()"
-            title="Bloquear pantalla ahora"
-            class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-rose-600 text-slate-300 hover:text-white transition"
+            onclick="toggleTheme()"
+            title="Cambiar Modo Día / Modo Noche"
+            class="min-h-[40px] w-10 rounded-xl bg-stone-100 dark:bg-zinc-900 hover:bg-stone-200 dark:hover:bg-zinc-800 border border-stone-300 dark:border-zinc-700 text-stone-700 dark:text-zinc-300 flex items-center justify-center"
+          >
+            <i class="fa-solid fa-moon theme-icon text-xs"></i>
+          </button>
+
+          <button
+            onclick="lockPanel()"
+            title="Bloquear pantalla"
+            class="min-h-[40px] px-3 py-1.5 rounded-xl bg-red-600/10 hover:bg-red-600 hover:text-white text-red-600 dark:text-red-400 border border-red-500/30 text-xs font-extrabold transition"
           >
             <i class="fa-solid fa-lock"></i>
           </button>
-        </nav>
+        </div>
       </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-      <!-- ================= PESTAÑA 1: GENERADOR DE PRESUPUESTOS PDF ================= -->
-      <section
-        id="panel-presupuesto"
-        class="grid lg:grid-cols-12 gap-7 items-start"
-      >
+    <!-- ========================================================= -->
+    <!-- CONTENEDOR PRINCIPAL                                      -->
+    <!-- ========================================================= -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
+      <!-- KPIs EJECUTIVOS GLOBALES -->
+      <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div
-          class="no-print lg:col-span-5 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4"
+          class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 rounded-2xl p-4 shadow-sm"
         >
-          <div
-            class="flex items-center justify-between border-b border-slate-100 pb-3"
+          <div class="flex items-center justify-between">
+            <span
+              class="text-[11px] font-extrabold uppercase text-stone-500 dark:text-zinc-400"
+            >
+              Pipeline CRM Activo
+            </span>
+            <i class="fa-solid fa-bullseye text-orange-500"></i>
+          </div>
+          <p
+            id="kpi-crm-total"
+            class="text-2xl font-black text-stone-900 dark:text-white mt-1"
           >
-            <h2 class="font-black text-base text-slate-900">
-              Configurar Presupuesto
-            </h2>
-            <button
-              onclick="newQuoteNumber()"
-              class="text-xs font-bold text-orange-600 hover:underline"
-            >
-              <i class="fa-solid fa-rotate"></i> Nuevo N°
-            </button>
-          </div>
-
-          <div class="grid sm:grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1"
-                >Nombre del Cliente</label
-              >
-              <input
-                type="text"
-                id="inp-cliente"
-                placeholder="Ej: Martín Gómez"
-                oninput="renderQuote()"
-                class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm"
-              />
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1"
-                >Negocio / Marca *</label
-              >
-              <input
-                type="text"
-                id="inp-negocio"
-                placeholder="Ej: Lomitos El Norte"
-                oninput="renderQuote()"
-                class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm"
-              />
-            </div>
-          </div>
-
-          <div class="grid sm:grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1"
-                >Rubro / Servicio</label
-              >
-              <select
-                id="inp-servicio"
-                onchange="onServiceChange()"
-                class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm"
-              >
-                <option value="menu">Menú Digital</option>
-                <option value="catalogo">Tienda / Catálogo</option>
-                <option value="turnos">Turnos Online</option>
-                <option value="gestion">Gestión y Stock</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1"
-                >Validez (días)</label
-              >
-              <input
-                type="number"
-                id="inp-validez"
-                value="7"
-                min="1"
-                max="30"
-                oninput="renderQuote()"
-                class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1"
-              >Plan Base</label
-            >
-            <select
-              id="inp-plan"
-              onchange="renderQuote()"
-              class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm"
-            ></select>
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1"
-              >Mantenimiento / Hosting</label
-            >
-            <select
-              id="inp-maint"
-              onchange="renderQuote()"
-              class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm"
-            >
-              <option value="monthly">Mensual — $20.000 / mes</option>
-              <option value="annual">Anual (50% OFF) — $120.000 / año</option>
-              <option value="none">
-                Solo Setup Inicial — $0 (solo Landing/WhatsApp)
-              </option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1.5"
-              >Extras y Dominio</label
-            >
-            <div id="inp-addons" class="space-y-1.5 text-xs"></div>
-            <label
-              class="flex items-center justify-between p-2.5 rounded-xl border border-slate-200 mt-2 cursor-pointer text-xs"
-            >
-              <span class="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="inp-domain"
-                  onchange="renderQuote()"
-                />
-                <span>Dominio propio (.com.ar / .com)</span>
-              </span>
-              <span class="font-bold text-orange-600">+$15.000</span>
-            </label>
-            <label
-              class="flex items-center justify-between p-2.5 rounded-xl border border-slate-200 mt-1.5 cursor-pointer text-xs"
-            >
-              <span class="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="inp-onsite"
-                  onchange="renderQuote()"
-                />
-                <span>Capacitación presencial en local</span>
-              </span>
-              <span class="font-bold text-slate-500">A cotizar</span>
-            </label>
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1"
-              >Notas / Condiciones adicionales</label
-            >
-            <textarea
-              id="inp-notas"
-              rows="2"
-              placeholder="Ej: Seña 50% al iniciar y 50% contra entrega en 72 hs hábiles."
-              oninput="renderQuote()"
-              class="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs"
-            ></textarea>
-          </div>
-
-          <button
-            onclick="window.print()"
-            class="w-full py-3.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-black text-sm shadow-md transition flex items-center justify-center gap-2"
+            0
+          </p>
+          <p
+            id="kpi-crm-alerts"
+            class="text-[11px] font-bold text-amber-600 dark:text-amber-400 mt-0.5"
           >
-            <i class="fa-solid fa-file-arrow-down"></i> Guardar como PDF /
-            Imprimir
-          </button>
+            0 alertas de seguimiento
+          </p>
         </div>
 
         <div
-          class="lg:col-span-7 print-sheet bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm space-y-6"
+          class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 rounded-2xl p-4 shadow-sm"
+        >
+          <div class="flex items-center justify-between">
+            <span
+              class="text-[11px] font-extrabold uppercase text-stone-500 dark:text-zinc-400"
+            >
+              Producción SLA 72 hs
+            </span>
+            <i
+              class="fa-solid fa-stopwatch text-emerald-600 dark:text-emerald-400"
+            ></i>
+          </div>
+          <p
+            id="kpi-sla-active"
+            class="text-2xl font-black text-emerald-700 dark:text-emerald-400 mt-1"
+          >
+            0
+          </p>
+          <p
+            id="kpi-sla-blocked"
+            class="text-[11px] font-bold text-stone-500 dark:text-zinc-400 mt-0.5"
+          >
+            0 esperando insumos
+          </p>
+        </div>
+
+        <div
+          class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 rounded-2xl p-4 shadow-sm"
+        >
+          <div class="flex items-center justify-between">
+            <span
+              class="text-[11px] font-extrabold uppercase text-stone-500 dark:text-zinc-400"
+            >
+              Abonos Recurrentes
+            </span>
+            <i
+              class="fa-solid fa-arrows-rotate text-sky-600 dark:text-sky-400"
+            ></i>
+          </div>
+          <p
+            id="kpi-mrr"
+            class="text-2xl font-black text-stone-900 dark:text-white mt-1"
+          >
+            $0
+          </p>
+          <p
+            id="kpi-overdue"
+            class="text-[11px] font-bold text-red-600 dark:text-red-400 mt-0.5"
+          >
+            0 en mora (>10 días)
+          </p>
+        </div>
+
+        <div
+          class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 rounded-2xl p-4 shadow-sm"
+        >
+          <div class="flex items-center justify-between">
+            <span
+              class="text-[11px] font-extrabold uppercase text-stone-500 dark:text-zinc-400"
+            >
+              ARCA Cat. A (12m)
+            </span>
+            <i class="fa-solid fa-scale-balanced text-orange-500"></i>
+          </div>
+          <p
+            id="kpi-arca-pct"
+            class="text-2xl font-black text-emerald-700 dark:text-emerald-400 mt-1"
+          >
+            0%
+          </p>
+          <p
+            id="kpi-arca-amount"
+            class="text-[11px] font-bold text-stone-500 dark:text-zinc-400 mt-0.5"
+          >
+            $0 / $12.009.410
+          </p>
+        </div>
+      </section>
+
+      <!-- NAVEGACIÓN DE LOS 4 MÓDULOS -->
+      <nav
+        class="flex overflow-x-auto gap-2 bg-white dark:bg-zinc-900 p-2 rounded-2xl border border-stone-200 dark:border-zinc-800 shadow-sm"
+        role="tablist"
+      >
+        <button
+          onclick="switchModule('crm')"
+          id="nav-crm"
+          class="min-h-[44px] px-4 py-2 rounded-xl text-xs sm:text-sm font-black whitespace-nowrap flex items-center gap-2 bg-emerald-800 text-white shadow transition"
+        >
+          <i class="fa-solid fa-users-viewfinder"></i> A. Embudo CRM Hiperlocal
+        </button>
+        <button
+          onclick="switchModule('sla')"
+          id="nav-sla"
+          class="min-h-[44px] px-4 py-2 rounded-xl text-xs sm:text-sm font-black whitespace-nowrap flex items-center gap-2 text-stone-700 dark:text-zinc-300 hover:bg-stone-100 dark:hover:bg-zinc-800 transition"
+        >
+          <i class="fa-solid fa-list-check text-orange-500"></i> B. Requisitos &
+          SLA 72 hs
+        </button>
+        <button
+          onclick="switchModule('finance')"
+          id="nav-finance"
+          class="min-h-[44px] px-4 py-2 rounded-xl text-xs sm:text-sm font-black whitespace-nowrap flex items-center gap-2 text-stone-700 dark:text-zinc-300 hover:bg-stone-100 dark:hover:bg-zinc-800 transition"
+        >
+          <i class="fa-solid fa-file-invoice-dollar text-emerald-500"></i> C.
+          Abonos & Semáforo ARCA
+        </button>
+        <button
+          onclick="switchModule('marketing')"
+          id="nav-marketing"
+          class="min-h-[44px] px-4 py-2 rounded-xl text-xs sm:text-sm font-black whitespace-nowrap flex items-center gap-2 text-stone-700 dark:text-zinc-300 hover:bg-stone-100 dark:hover:bg-zinc-800 transition"
+        >
+          <i class="fa-solid fa-bullhorn text-sky-500"></i> D. Marketing, Grilla
+          & ROI
+        </button>
+      </nav>
+
+      <!-- ========================================================= -->
+      <!-- MÓDULO A: EMBUDO CRM DE PROSPECCIÓN HIPERLOCAL Y FEDERAL  -->
+      <!-- ========================================================= -->
+      <section id="mod-crm" class="space-y-6">
+        <!-- Formulario Nuevo Prospecto -->
+        <div
+          class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 rounded-3xl p-5 sm:p-6 shadow-sm"
         >
           <div
-            class="flex flex-wrap justify-between items-start gap-4 border-b border-slate-200 pb-5"
+            class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4"
           >
             <div>
-              <div class="flex items-center gap-2">
-                <span
-                  class="w-8 h-8 rounded-lg bg-orange-500 text-white font-black flex items-center justify-center text-sm"
-                  >SM</span
-                >
-                <span class="font-black text-xl text-slate-900"
-                  >Smart<span class="text-orange-500">Menu</span></span
-                >
-              </div>
-              <p class="text-xs text-slate-500 mt-1.5">
-                Soluciones Web • San Miguel de Tucumán, Argentina
-              </p>
-              <p class="text-xs text-slate-500">
-                WhatsApp: +54 9 381 632-0130 • smartmenuprofesional@gmail.com
+              <h2 class="text-lg font-black text-stone-900 dark:text-white">
+                Registrar Nuevo Prospecto
+              </h2>
+              <p class="text-xs text-stone-500 dark:text-zinc-400">
+                Etiquetá por anillo geográfico desde Refinor La Garza, Tucumán o
+                expansión federal.
               </p>
             </div>
-
-            <div class="text-right text-xs space-y-1">
-              <p class="font-black text-sm text-slate-900">
-                PRESUPUESTO
-                <span id="pdf-code" class="text-orange-600">SM-2026-001</span>
-              </p>
-              <p class="text-slate-600">
-                Emisión: <strong id="pdf-date"></strong>
-              </p>
-              <p class="text-rose-700 font-bold">
-                Válido hasta: <span id="pdf-due"></span>
-              </p>
-            </div>
+            <button
+              onclick="exportCRMCSV()"
+              class="min-h-[40px] px-3.5 py-2 rounded-xl bg-stone-100 dark:bg-zinc-800 hover:bg-stone-200 dark:hover:bg-zinc-700 text-xs font-extrabold text-stone-700 dark:text-zinc-200 self-start"
+            >
+              <i class="fa-solid fa-file-csv text-emerald-600 mr-1.5"></i>
+              Exportar CSV
+            </button>
           </div>
 
+          <form
+            onsubmit="addProspect(event)"
+            class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3"
+          >
+            <input
+              type="text"
+              id="crm-business"
+              required
+              placeholder="Nombre del local / profesional *"
+              class="min-h-[44px] px-3.5 py-2 rounded-xl border border-stone-300 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-950 text-xs font-semibold"
+            />
+            <input
+              type="text"
+              id="crm-contact"
+              placeholder="Nombre dueño / contacto"
+              class="min-h-[44px] px-3.5 py-2 rounded-xl border border-stone-300 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-950 text-xs font-semibold"
+            />
+            <input
+              type="tel"
+              id="crm-phone"
+              required
+              placeholder="WhatsApp (ej: 3815551234) *"
+              class="min-h-[44px] px-3.5 py-2 rounded-xl border border-stone-300 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-950 text-xs font-semibold"
+            />
+            <select
+              id="crm-zone"
+              class="min-h-[44px] px-3 py-2 rounded-xl border border-stone-300 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-950 text-xs font-bold"
+            >
+              <option value="Anillo 0: La Garza / Circunvalación">
+                Anillo 0: La Garza / Circunvalación
+              </option>
+              <option value="Anillo 1: Villa 9 de Julio / Gob. del Campo">
+                Anillo 1: Villa 9 de Julio / Gob. del Campo
+              </option>
+              <option value="Anillo 1: Microcentro / Barrio Norte">
+                Anillo 1: Microcentro / Barrio Norte
+              </option>
+              <option value="Anillo 2: Banda del Río Salí / Alderetes">
+                Anillo 2: Banda del Río Salí / Alderetes
+              </option>
+              <option value="Yerba Buena">Yerba Buena</option>
+              <option value="Tafí Viejo / Las Talitas">
+                Tafí Viejo / Las Talitas
+              </option>
+              <option value="Interior Tucumán">
+                Interior Tucumán (Concepción/Monteros/etc.)
+              </option>
+              <option value="Otra Provincia (Federal)">
+                Otra Provincia (Expansión Federal)
+              </option>
+            </select>
+
+            <select
+              id="crm-rubro"
+              class="min-h-[44px] px-3 py-2 rounded-xl border border-stone-300 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-950 text-xs font-bold"
+            >
+              <option value="Gastronomía">
+                Gastronomía (Menú Clásico / Moderno)
+              </option>
+              <option value="Gimnasio">Gimnasio / Fitness (Turnos)</option>
+              <option value="Salud / Educación">
+                Salud / Educación (Turnos)
+              </option>
+              <option value="Catálogo Comercial">
+                Catálogo Comercial / Repuestos
+              </option>
+              <option value="Gestión y Stock">Gestión y Stock ($120k)</option>
+            </select>
+
+            <select
+              id="crm-stage"
+              class="min-h-[44px] px-3 py-2 rounded-xl border border-stone-300 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-950 text-xs font-bold"
+            >
+              <option value="Detectado">1. Detectado</option>
+              <option value="Visitado / Volante dejado">
+                2. Visitado / Volante dejado
+              </option>
+              <option value="Demo enviada">3. Demo enviada</option>
+              <option value="Presupuesto 7d">4. Presupuesto 7d enviado</option>
+              <option value="Seña 50%">5. Seña 50% cobrada</option>
+              <option value="Producción 72h">6. En Producción 72h</option>
+              <option value="Entregado">7. Entregado</option>
+            </select>
+
+            <input
+              type="number"
+              id="crm-amount"
+              min="0"
+              step="1000"
+              value="50000"
+              placeholder="Monto estimado ARS"
+              class="min-h-[44px] px-3.5 py-2 rounded-xl border border-stone-300 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-950 text-xs font-semibold"
+            />
+
+            <button
+              type="submit"
+              class="min-h-[44px] bg-orange-500 hover:bg-orange-600 text-white font-black text-xs rounded-xl shadow transition flex items-center justify-center gap-1.5"
+            >
+              <i class="fa-solid fa-plus"></i> Agregar al Embudo
+            </button>
+          </form>
+        </div>
+
+        <!-- Filtros y Listado CRM -->
+        <div
+          class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 rounded-3xl p-5 sm:p-6 shadow-sm space-y-4"
+        >
           <div
-            class="bg-slate-50 border border-slate-200 rounded-xl p-4 grid sm:grid-cols-2 gap-3 text-xs"
+            class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-stone-200 dark:border-zinc-800 pb-4"
           >
-            <div>
-              <p class="text-slate-400 font-bold uppercase text-[10px]">
-                Cliente / Contacto
-              </p>
-              <p
-                id="pdf-cliente"
-                class="font-bold text-slate-900 text-sm mt-0.5"
+            <div class="flex flex-wrap gap-2">
+              <select
+                id="filter-crm-zone"
+                onchange="renderCRM()"
+                class="min-h-[40px] px-3 py-1.5 rounded-xl border border-stone-300 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-950 text-xs font-bold"
               >
-                A confirmar
-              </p>
-            </div>
-            <div>
-              <p class="text-slate-400 font-bold uppercase text-[10px]">
-                Comercio / Proyecto
-              </p>
-              <p
-                id="pdf-negocio"
-                class="font-bold text-slate-900 text-sm mt-0.5"
+                <option value="all">Todas las zonas / anillos</option>
+                <option value="Anillo 0: La Garza / Circunvalación">
+                  Anillo 0: La Garza / Circunvalación
+                </option>
+                <option value="Anillo 1: Villa 9 de Julio / Gob. del Campo">
+                  Anillo 1: Villa 9 de Julio / Gob. del Campo
+                </option>
+                <option value="Anillo 1: Microcentro / Barrio Norte">
+                  Anillo 1: Microcentro / Barrio Norte
+                </option>
+                <option value="Anillo 2: Banda del Río Salí / Alderetes">
+                  Anillo 2: Banda del Río Salí / Alderetes
+                </option>
+                <option value="Yerba Buena">Yerba Buena</option>
+                <option value="Tafí Viejo / Las Talitas">
+                  Tafí Viejo / Las Talitas
+                </option>
+                <option value="Interior Tucumán">Interior Tucumán</option>
+                <option value="Otra Provincia (Federal)">
+                  Otra Provincia (Federal)
+                </option>
+              </select>
+
+              <select
+                id="filter-crm-stage"
+                onchange="renderCRM()"
+                class="min-h-[40px] px-3 py-1.5 rounded-xl border border-stone-300 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-950 text-xs font-bold"
               >
-                A confirmar
-              </p>
+                <option value="all">Todas las etapas</option>
+                <option value="Detectado">1. Detectado</option>
+                <option value="Visitado / Volante dejado">
+                  2. Visitado / Volante dejado
+                </option>
+                <option value="Demo enviada">3. Demo enviada</option>
+                <option value="Presupuesto 7d">4. Presupuesto 7d</option>
+                <option value="Seña 50%">5. Seña 50%</option>
+                <option value="Producción 72h">6. Producción 72h</option>
+                <option value="Entregado">7. Entregado</option>
+              </select>
             </div>
+
+            <span
+              class="text-[11px] font-bold text-stone-500 dark:text-zinc-400"
+            >
+              Reglas activas: Alerta a <strong>48h</strong> sin contacto y aviso
+              en <strong>Día 6/7</strong> de presupuesto.
+            </span>
           </div>
 
-          <div>
-            <h3
-              class="text-xs font-extrabold uppercase tracking-wider text-slate-400 mb-2"
-            >
-              Detalle de la Propuesta (ARS)
-            </h3>
-            <div
-              class="border border-slate-200 rounded-xl overflow-hidden text-xs"
-            >
-              <table class="w-full text-left border-collapse">
-                <thead class="bg-slate-50 border-b border-slate-200">
-                  <tr>
-                    <th class="p-3 font-bold text-slate-700">Concepto</th>
-                    <th class="p-3 font-bold text-slate-700 text-right">
-                      Importe
-                    </th>
-                  </tr>
-                </thead>
-                <tbody id="pdf-items" class="divide-y divide-slate-100"></tbody>
-              </table>
-            </div>
+          <div id="crm-list" class="grid md:grid-cols-2 gap-4"></div>
+        </div>
+      </section>
 
+      <!-- ========================================================= -->
+      <!-- MÓDULO B: CONTROL BLOQUEANTE DE REQUISITOS & SLA 72 HS    -->
+      <!-- ========================================================= -->
+      <section id="mod-sla" class="hidden space-y-6">
+        <div
+          class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 rounded-3xl p-5 sm:p-6 shadow-sm space-y-4"
+        >
+          <div
+            class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-200 dark:border-zinc-800 pb-4"
+          >
+            <div>
+              <h2 class="text-lg font-black text-stone-900 dark:text-white">
+                Tablero de Producción y Control Bloqueante (SLA 72 hs Hábiles)
+              </h2>
+              <p class="text-xs text-stone-500 dark:text-zinc-400">
+                El temporizador de <strong>72 horas hábiles</strong> permanece
+                pausado hasta marcar los 5 insumos obligatorios. Si falta
+                alguno, generá el recordatorio puntual por WhatsApp.
+              </p>
+            </div>
+            <button
+              onclick="addDemoSLAProject()"
+              class="min-h-[40px] px-4 py-2 rounded-xl bg-emerald-800 hover:bg-emerald-700 text-white text-xs font-extrabold shrink-0"
+            >
+              + Nuevo Proyecto Activo
+            </button>
+          </div>
+
+          <div id="sla-projects-list" class="grid lg:grid-cols-2 gap-4"></div>
+        </div>
+      </section>
+
+      <!-- ========================================================= -->
+      <!-- MÓDULO C: ABONOS, LÍMITES Y SEMÁFORO FISCAL ARCA          -->
+      <!-- ========================================================= -->
+      <section id="mod-finance" class="hidden space-y-6">
+        <!-- Semáforo Monotributo ARCA + Cotización USD -->
+        <div class="grid lg:grid-cols-12 gap-6">
+          <div
+            class="lg:col-span-8 bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 rounded-3xl p-5 sm:p-6 shadow-sm space-y-4"
+          >
             <div
-              class="mt-4 bg-slate-900 text-white rounded-xl p-4 flex items-center justify-between"
+              class="flex flex-col sm:flex-row sm:items-center justify-between gap-2"
             >
               <div>
-                <p
-                  class="text-[11px] uppercase tracking-wider text-slate-400 font-bold"
+                <span
+                  class="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-orange-100 dark:bg-orange-500/15 text-orange-700 dark:text-orange-400"
                 >
-                  Total Estimado Inicial
-                </p>
-                <p
-                  id="pdf-maint-note"
-                  class="text-xs text-emerald-300 mt-0.5"
-                ></p>
+                  Tabla ARCA Vigente desde 01/08/2026
+                </span>
+                <h2
+                  class="text-lg font-black text-stone-900 dark:text-white mt-1"
+                >
+                  Semáforo de Facturación Móvil (Últimos 12 Meses)
+                </h2>
               </div>
-              <p
-                id="pdf-total"
-                class="text-2xl sm:text-3xl font-black text-orange-400"
-              ></p>
+              <div class="flex items-center gap-2">
+                <input
+                  type="number"
+                  id="arca-extra-input"
+                  step="5000"
+                  placeholder="Sumar cobro ARS"
+                  class="min-h-[40px] w-36 px-3 py-1.5 rounded-xl border border-stone-300 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-950 text-xs font-bold"
+                />
+                <button
+                  onclick="addBilledAmount()"
+                  class="min-h-[40px] px-3 py-1.5 rounded-xl bg-emerald-800 hover:bg-emerald-700 text-white text-xs font-extrabold"
+                >
+                  + Registrar
+                </button>
+              </div>
+            </div>
+
+            <!-- Barra Visual Cat A / B / C -->
+            <div class="space-y-2">
+              <div class="flex justify-between text-xs font-extrabold">
+                <span
+                  id="arca-billed-label"
+                  class="text-stone-900 dark:text-white"
+                  >Facturado 12m: $0</span
+                >
+                <span
+                  id="arca-status-badge"
+                  class="text-emerald-700 dark:text-emerald-400"
+                  >Dentro de Categoría A</span
+                >
+              </div>
+              <div
+                class="w-full h-4 rounded-full bg-stone-200 dark:bg-zinc-800 overflow-hidden"
+              >
+                <div
+                  id="arca-progress-bar"
+                  class="h-full bg-emerald-500 transition-all duration-300"
+                  style="width: 10%"
+                ></div>
+              </div>
+              <div class="grid grid-cols-3 gap-2 pt-2 text-[11px]">
+                <div
+                  class="p-2.5 rounded-xl bg-stone-50 dark:bg-zinc-950 border border-stone-200 dark:border-zinc-800"
+                >
+                  <span
+                    class="block font-bold text-stone-500 dark:text-zinc-400"
+                    >Tope Categoría A</span
+                  >
+                  <strong class="text-stone-900 dark:text-white"
+                    >$12.009.410,45</strong
+                  >
+                </div>
+                <div
+                  class="p-2.5 rounded-xl bg-stone-50 dark:bg-zinc-950 border border-stone-200 dark:border-zinc-800"
+                >
+                  <span
+                    class="block font-bold text-stone-500 dark:text-zinc-400"
+                    >Tope Categoría B</span
+                  >
+                  <strong class="text-stone-900 dark:text-white"
+                    >$17.595.182,74</strong
+                  >
+                </div>
+                <div
+                  class="p-2.5 rounded-xl bg-stone-50 dark:bg-zinc-950 border border-stone-200 dark:border-zinc-800"
+                >
+                  <span
+                    class="block font-bold text-stone-500 dark:text-zinc-400"
+                    >Tope Categoría C</span
+                  >
+                  <strong class="text-stone-900 dark:text-white"
+                    >$24.670.494,31</strong
+                  >
+                </div>
+              </div>
             </div>
 
             <p
-              id="pdf-notas-box"
-              class="hidden mt-3 text-xs bg-amber-50 border border-amber-200 text-amber-900 rounded-xl p-3"
-            ></p>
-          </div>
-
-          <div
-            class="grid sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100 text-xs"
-          >
-            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5">
-              <h4 class="font-extrabold text-slate-900 mb-1.5">
-                📋 Requisitos para iniciar (72 hs hábiles)
-              </h4>
-              <ul
-                id="pdf-reqs"
-                class="list-disc pl-4 space-y-1 text-slate-600"
-              ></ul>
-            </div>
-
-            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5">
-              <h4 class="font-extrabold text-slate-900 mb-1.5">
-                ⚖️ Resguardo y Condiciones
-              </h4>
-              <ul class="list-disc pl-4 space-y-1 text-slate-600">
-                <li>Validez sujeta a la fecha límite indicada arriba.</li>
-                <li>
-                  El plazo de 72 hs hábiles corre al recibir todo el material
-                  completo y el anticipo acordado.
-                </li>
-                <li>
-                  SmartMenu provee el desarrollo web; no actúa como
-                  intermediario de pagos ni responsable por stock, precios o
-                  ventas del comercio.
-                </li>
-                <li>
-                  El Cliente garantiza contar con derechos de uso sobre logos y
-                  fotos enviados.
-                </li>
-                <li>
-                  Mantenimiento: máx. 2 actualizaciones/mes (hasta 15 ítems c/u)
-                  o 1 ajuste estético menor. Mora mayor a 10 días suspende el
-                  servicio activo.
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ================= PESTAÑA 2: GENERADOR DE MENSAJES PRO ================= -->
-      <section id="panel-mensajes" class="hidden space-y-6">
-        <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
-          <h2 class="font-black text-lg text-slate-900 mb-1">
-            Generador de Mensajes Profesionales (WhatsApp / Instagram)
-          </h2>
-          <p class="text-xs text-slate-500 mb-4">
-            Completá los datos una vez y copiá con un clic el mensaje listo para
-            enviar según la etapa del cliente.
-          </p>
-
-          <div class="grid sm:grid-cols-4 gap-3">
-            <input
-              type="text"
-              id="msg-cliente"
-              placeholder="Nombre del cliente"
-              oninput="renderMessages()"
-              class="border border-slate-300 rounded-xl px-3 py-2 text-sm"
-            />
-            <input
-              type="text"
-              id="msg-negocio"
-              placeholder="Nombre del local / marca"
-              oninput="renderMessages()"
-              class="border border-slate-300 rounded-xl px-3 py-2 text-sm"
-            />
-            <select
-              id="msg-rubro"
-              onchange="renderMessages()"
-              class="border border-slate-300 rounded-xl px-3 py-2 text-sm"
+              class="text-[11px] text-stone-600 dark:text-zinc-400 bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40 rounded-xl p-3"
             >
-              <option value="Menú Digital Interactivo">
-                Menú Digital Interactivo
-              </option>
-              <option value="Smart Catálogo Comercial">
-                Smart Catálogo Comercial
-              </option>
-              <option value="Sistema de Turnos Online">
-                Sistema de Turnos Online
-              </option>
-              <option value="Gestión y Stock">Gestión y Stock</option>
-            </select>
-            <input
-              type="text"
-              id="msg-monto"
-              placeholder="Monto (ej: $50.000)"
-              oninput="renderMessages()"
-              class="border border-slate-300 rounded-xl px-3 py-2 text-sm"
-            />
-          </div>
-        </div>
-
-        <div id="messages-grid" class="grid md:grid-cols-2 gap-5"></div>
-      </section>
-
-      <!-- ================= PESTAÑA 3: MANUAL DE SERVICIOS, LÍMITES Y VENTAS ================= -->
-      <section id="panel-ventas" class="hidden space-y-8">
-        <!-- BLOQUE 1: MANUAL DE ESTUDIO POR SERVICIO Y SUS LÍMITES -->
-        <div
-          class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6"
-        >
-          <div class="border-b border-slate-100 pb-4">
-            <span
-              class="text-xs font-extrabold uppercase tracking-wider text-orange-600"
-            >
-              Manual de Formación Interna • Conocé tu Producto y tus Límites
-            </span>
-            <h2 class="font-black text-xl text-slate-900 mt-1">
-              Guía de Cada Servicio: Qué Vender y Dónde Poner el Límite
-            </h2>
-            <p class="text-xs text-slate-500 mt-1">
-              Repasá esta guía antes de reunirte o chatear con un cliente para
-              responder con seguridad y evitar prometer trabajo gratis.
+              <i class="fa-solid fa-circle-info text-emerald-600 mr-1"></i>
+              <strong>Nota Relación de Dependencia:</strong> Al aportar SIPA y
+              Obra Social por tu empleo principal, en Categoría A solo abonás el
+              impuesto integrado de servicios (<strong>$5.585,77/mes</strong> en
+              lugar de $49.527,18).
             </p>
           </div>
 
+          <!-- Cotización USD Referencial -->
           <div
-            id="services-manual-grid"
-            class="grid md:grid-cols-2 gap-5"
-          ></div>
-
-          <!-- REGLAS TRANSVERSALES -->
-          <div
-            class="bg-slate-900 text-white rounded-2xl p-5 grid sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs"
+            class="lg:col-span-4 bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 rounded-3xl p-5 sm:p-6 shadow-sm flex flex-col justify-between space-y-4"
           >
-            <div class="space-y-1">
-              <p class="font-black text-orange-400">
-                1. Cero intermediación de dinero
+            <div>
+              <h3 class="text-base font-black text-stone-900 dark:text-white">
+                Cotización USD en Demos
+              </h3>
+              <p class="text-xs text-stone-500 dark:text-zinc-400 mt-1">
+                Valor de referencia sincronizado con
+                <code class="text-orange-500">config.js</code> para tus
+                simuladores públicos.
               </p>
-              <p class="text-slate-300 leading-relaxed">
-                SmartMenu ordena el pedido o turno y lo manda al WhatsApp del
-                comercio. El cliente paga directo al dueño (transferencia,
-                efectivo o link propio). Nunca pasamos plata por cuentas
-                nuestras.
-              </p>
+              <div class="mt-4 flex items-center gap-2">
+                <span class="text-sm font-black">1 USD = $</span>
+                <input
+                  type="number"
+                  id="ops-usd-input"
+                  value="1600"
+                  class="min-h-[44px] w-28 px-3 py-2 rounded-xl border border-stone-300 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-950 text-sm font-black"
+                />
+                <button
+                  onclick="saveOpsUsdRate()"
+                  class="min-h-[44px] px-3.5 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-extrabold"
+                >
+                  Actualizar
+                </button>
+              </div>
             </div>
-            <div class="space-y-1">
-              <p class="font-black text-orange-400">
-                2. Reloj de 72 hs hábiles
-              </p>
-              <p class="text-slate-300 leading-relaxed">
-                Las 72 hs hábiles <strong>no arrancan</strong> cuando el cliente
-                dice "dale, hacelo", sino recién cuando recibís la seña (50%) +
-                logo + lista de precios y fotos completas.
-              </p>
-            </div>
-            <div class="space-y-1">
-              <p class="font-black text-orange-400">
-                3. Tope del abono ($20.000/mes)
-              </p>
-              <p class="text-slate-300 leading-relaxed">
-                Incluye hosting, SSL y hasta
-                <strong>2 actualizaciones por mes</strong>
-                (de hasta 15 ítems cada una) o 1 cambio estético menor. Si te
-                piden cargar 80 productos nuevos todas las semanas, se cotiza
-                aparte o pasan a Panel Admin.
-              </p>
-            </div>
-            <div class="space-y-1">
-              <p class="font-black text-orange-400">
-                4. Guía PDF vs. Presencial
-              </p>
-              <p class="text-slate-300 leading-relaxed">
-                Todos los servicios incluyen gratis una
-                <strong>Guía PDF paso a paso</strong>. Si el dueño te pide que
-                vayas personalmente al local a capacitar a sus empleados, eso se
-                cotiza aparte según zona y tiempo.
-              </p>
+            <div
+              class="pt-3 border-t border-stone-100 dark:border-zinc-800 text-[11px] text-stone-500 dark:text-zinc-400"
+            >
+              Recordá actualizar <code class="text-orange-500">usdRate</code> en
+              <code class="text-orange-500">config.js</code> al subir cambios a
+              Vercel.
             </div>
           </div>
         </div>
 
-        <!-- BLOQUE 2: ESTRATEGIA DE PROSPECCIÓN -->
+        <!-- Cartera de Abonos y Control de Solicitudes Mensuales -->
         <div
-          class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-5"
+          class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 rounded-3xl p-5 sm:p-6 shadow-sm space-y-4"
         >
-          <div>
-            <span
-              class="text-xs font-extrabold uppercase tracking-wider text-orange-600"
+          <div
+            class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-200 dark:border-zinc-800 pb-4"
+          >
+            <div>
+              <h2 class="text-lg font-black text-stone-900 dark:text-white">
+                Cartera de Abonos, Vencimientos y Tope de Cambios Mensuales
+              </h2>
+              <p class="text-xs text-stone-500 dark:text-zinc-400">
+                Controlá vencimientos (alerta automática tras
+                <strong>10 días de mora</strong>) y cuántas actualizaciones usó
+                cada cliente en el mes.
+              </p>
+            </div>
+            <button
+              onclick="addDemoSubscription()"
+              class="min-h-[40px] px-4 py-2 rounded-xl bg-emerald-800 hover:bg-emerald-700 text-white text-xs font-extrabold shrink-0"
             >
-              Paso a Paso en Calle y Redes
-            </span>
-            <h2 class="font-black text-xl text-slate-900 mt-1">
-              Estrategia de Prospección y Cierre
-            </h2>
+              + Agregar Cliente Abonado
+            </button>
           </div>
 
-          <div class="grid md:grid-cols-4 gap-4 text-xs">
-            <div
-              class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-1.5"
-            >
-              <p class="font-black text-slate-900 text-sm">
-                1. Detectar el dolor
-              </p>
-              <p class="text-slate-600 leading-relaxed">
-                Buscá en Google Maps e Instagram locales que hoy mandan un
-                <strong>PDF pesado</strong>, tienen precios tachados en
-                historias o tardan 15 minutos en responder qué turnos o talles
-                quedan.
-              </p>
-            </div>
-            <div
-              class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-1.5"
-            >
-              <p class="font-black text-slate-900 text-sm">
-                2. Demo en vivo (30 seg)
-              </p>
-              <p class="text-slate-600 leading-relaxed">
-                Nunca expliques el código: abrí
-                <strong>smartmenu.com.ar</strong>, armá un pedido de prueba y
-                mostrá cómo cae el mensaje sumado y ordenado directo al
-                WhatsApp.
-              </p>
-            </div>
-            <div
-              class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-1.5"
-            >
-              <p class="font-black text-slate-900 text-sm">
-                3. Horario y volante
-              </p>
-              <p class="text-slate-600 leading-relaxed">
-                En gastronomía visitá de <strong>10:00 a 12:00</strong> o de
-                <strong>17:30 a 19:30</strong>. Si el dueño no está o está
-                ocupado, dejá el <strong>Volante Express</strong> en mostrador y
-                seguí caminando sin perder tiempo.
-              </p>
-            </div>
-            <div
-              class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-1.5"
-            >
-              <p class="font-black text-slate-900 text-sm">
-                4. Cierre con urgencia real
-              </p>
-              <p class="text-slate-600 leading-relaxed">
-                Entregá siempre el
-                <strong>Presupuesto PDF con validez de 7 días</strong> y recordá
-                que las 72 hs hábiles arrancan apenas te pasen logo, lista y
-                seña.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- BLOQUE 3: OBJECIONES -->
-        <div class="space-y-3">
-          <h3 class="font-black text-base text-slate-900 px-1">
-            🛡️ Respuestas Listas frente a las 7 Objeciones Más Comunes
-          </h3>
-          <div id="objections-grid" class="grid md:grid-cols-2 gap-4"></div>
+          <div
+            id="subscriptions-list"
+            class="grid md:grid-cols-2 lg:grid-cols-3 gap-4"
+          ></div>
         </div>
       </section>
 
-      <!-- ================= PESTAÑA 4: PROMPTS, VIDEOS, FLYERS Y GUÍA GEMINI ================= -->
-      <section id="panel-prompts" class="hidden space-y-8">
-        <!-- GUÍA MAESTRA DE GOOGLE AI PLUS EN GEMINI -->
-        <div
-          class="bg-white border border-blue-200 rounded-2xl p-6 shadow-sm space-y-4"
-        >
-          <div class="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <span
-                class="text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200"
-              >
-                Tu Plan Actual: Google AI Plus
-              </span>
-              <h2 class="font-black text-lg text-slate-900 mt-1">
-                📘 Guía Rápida: Cómo Aprovechar al Máximo Gemini para Imágenes y
-                Videos
-              </h2>
-            </div>
-            <button
-              onclick="toggleGeminiGuide()"
-              id="btn-toggle-guide"
-              class="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-extrabold transition"
-            >
-              Ocultar guía
-            </button>
-          </div>
-
+      <!-- ========================================================= -->
+      <!-- MÓDULO D: MARKETING, GRILLA 16 PIEZAS, UTM Y ROI           -->
+      <!-- ========================================================= -->
+      <section id="mod-marketing" class="hidden space-y-6">
+        <!-- Generador UTM + Calculadora ROI Meta Ads -->
+        <div class="grid lg:grid-cols-2 gap-6">
+          <!-- Generador UTM -->
           <div
-            id="gemini-guide-body"
-            class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs pt-2 border-t border-slate-100"
+            class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 rounded-3xl p-5 sm:p-6 shadow-sm space-y-4"
           >
-            <div
-              class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2"
-            >
-              <p class="font-black text-slate-900 text-sm">
-                1. Relación de aspecto
-              </p>
-              <ul class="space-y-1.5 text-slate-600 leading-relaxed">
-                <li>
-                  <strong>3:4 (Vertical):</strong> Usalo para casi todas tus
-                  publicaciones del feed de Instagram (ocupa más pantalla en el
-                  celular) y para fondos de
-                  <strong>Volantes / Flyers A6</strong>.
-                </li>
-                <li>
-                  <strong>1:1 (Cuadrado):</strong> Ideal para carruseles o
-                  placas informativas clásicas.
-                </li>
-                <li>
-                  <strong>9:16 (Pantalla completa):</strong> Siempre para
-                  <strong>Historias, Reels y Estados de WhatsApp</strong>.
-                </li>
-                <li>
-                  <strong>16:9 (Horizontal):</strong> Solo para banners web o
-                  presentaciones en PC.
-                </li>
-              </ul>
-            </div>
-
-            <div
-              class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2"
-            >
-              <p class="font-black text-slate-900 text-sm">
-                2. Motor y Razonamiento
-              </p>
-              <ul class="space-y-1.5 text-slate-600 leading-relaxed">
-                <li>
-                  <strong>Motor:</strong> Dejá seleccionado
-                  <strong>Automático</strong> (o <strong>4 Hydrogen</strong>).
-                </li>
-                <li>
-                  <strong>Razonamiento Bajo:</strong> Usalo cuando quieras
-                  respuestas rápidas o variantes simples de texto.
-                </li>
-                <li>
-                  <strong>Razonamiento Alto:</strong> Activalo cuando armemos
-                  código HTML, presupuestos o estrategias comerciales complejas.
-                </li>
-              </ul>
-            </div>
-
-            <div
-              class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2"
-            >
-              <p class="font-black text-slate-900 text-sm">
-                3. Las 4 herramientas (+)
-              </p>
-              <ul class="space-y-1.5 text-slate-600 leading-relaxed">
-                <li>
-                  <strong>Canvas:</strong> Pantalla dividida para editar textos
-                  largos o archivos HTML sin regenerar todo de cero.
-                </li>
-                <li>
-                  <strong>Deep Research:</strong> Investiga decenas de páginas y
-                  arma informes (ej: analizar precios de bares en Tucumán).
-                </li>
-                <li>
-                  <strong>Crear música:</strong> Audio instrumental sin
-                  copyright para poner de fondo en tus Reels sin bloqueos.
-                </li>
-                <li>
-                  <strong>Aprendizaje guiado:</strong> Tutor paso a paso para
-                  aprender Meta Ads o técnicas de cierre.
-                </li>
-              </ul>
-            </div>
-
-            <div
-              class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2"
-            >
-              <p class="font-black text-slate-900 text-sm">
-                4. Reglas de oro en Video
-              </p>
-              <ul class="space-y-1.5 text-slate-600 leading-relaxed">
-                <li>
-                  <strong>Orientación:</strong> Cambiá siempre de
-                  <em>Horizontal</em> a <strong>Vertical</strong> antes de
-                  generar Reels o Historias.
-                </li>
-                <li>
-                  <strong>Plantilla "Productos":</strong> Ideal para mostrar un
-                  celular girando con tu menú o catálogo.
-                </li>
-                <li>
-                  <strong>Sin textos largos en video:</strong> Nunca pidas
-                  frases largas dentro del video porque la IA deforma las letras
-                  en movimiento. Generá el clip limpio y agregá los textos en
-                  Instagram Reels o CapCut.
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <!-- GENERADOR AUTOMÁTICO DE IDEAS AL INSTANTE -->
-        <div
-          class="bg-slate-900 text-white rounded-2xl p-6 shadow-md space-y-5"
-        >
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <span
-                class="text-[11px] font-extrabold uppercase tracking-wider text-orange-400"
-              >
-                Generador Ilimitado • Optimizado para Google Gemini
-              </span>
-              <h2 class="font-black text-xl mt-0.5">
-                Creá un Prompt de Imagen, Video Reel o Flyer al Instante
-              </h2>
-              <p class="text-xs text-slate-400 mt-0.5">
-                Escribí cualquier idea que se te ocurra hoy y obtené el prompt
-                técnico + copy + hashtags listos para pegar en Gemini.
-              </p>
-            </div>
-          </div>
-
-          <div class="grid md:grid-cols-12 gap-3 text-xs">
-            <div class="md:col-span-5">
-              <label class="block font-bold text-slate-300 mb-1"
-                >¿Qué idea o promoción querés mostrar hoy? *</label
-              >
-              <input
-                type="text"
-                id="gen-idea"
-                placeholder="Ej: Promo viernes de empanadas tucumanas / Canchas de pádel"
-                class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 text-sm"
-              />
-            </div>
-
-            <div class="md:col-span-2">
-              <label class="block font-bold text-slate-300 mb-1"
-                >Servicio</label
-              >
+            <h3 class="text-base font-black text-stone-900 dark:text-white">
+              <i class="fa-solid fa-link text-orange-500 mr-1.5"></i> Generador
+              de Enlaces UTM
+            </h3>
+            <div class="grid sm:grid-cols-3 gap-2.5">
               <select
-                id="gen-srv"
-                class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-white text-xs"
+                id="utm-page"
+                onchange="buildUTMLink()"
+                class="min-h-[44px] px-3 py-2 rounded-xl border border-stone-300 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-950 text-xs font-bold"
               >
-                <option value="Menú Digital Interactivo">Menú Digital</option>
-                <option value="Smart Catálogo Online">Smart Catálogo</option>
-                <option value="Sistema de Turnos Online">Turnos Online</option>
-                <option value="Sistema de Gestión y Stock">
+                <option value="https://smartmenu.com.ar/">
+                  Portada (index.html)
+                </option>
+                <option value="https://smartmenu.com.ar/demo_moderno.html">
+                  Menú Moderno
+                </option>
+                <option value="https://smartmenu.com.ar/turnos.html">
+                  Turnos y Cupos
+                </option>
+                <option value="https://smartmenu.com.ar/catalogos.html">
+                  Smart Catálogos
+                </option>
+                <option value="https://smartmenu.com.ar/gestion.html">
                   Gestión y Stock
                 </option>
-                <option value="Ecosistema Digital SmartMenu">
-                  Todos los servicios
+                <option value="https://smartmenu.com.ar/planes.html">
+                  Calculador Planes
                 </option>
               </select>
-            </div>
-
-            <div class="md:col-span-3">
-              <label class="block font-bold text-slate-300 mb-1"
-                >Formato en Gemini</label
-              >
               <select
-                id="gen-format"
-                class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-white text-xs"
+                id="utm-source"
+                onchange="buildUTMLink()"
+                class="min-h-[44px] px-3 py-2 rounded-xl border border-stone-300 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-950 text-xs font-bold"
               >
-                <option value="img-34">
-                  Imagen Feed Instagram (Vertical 3:4)
-                </option>
-                <option value="img-11">Imagen Cuadrada Instagram (1:1)</option>
-                <option value="vid-916">
-                  Video Reel / Historia (Vertical 9:16)
-                </option>
-                <option value="flyer-a6">
-                  Volante / Flyer Impreso (A6 Vertical 3:4)
-                </option>
+                <option value="instagram">Instagram Bio/Reel</option>
+                <option value="tiktok">TikTok</option>
+                <option value="whatsapp_estado">Estado WhatsApp</option>
+                <option value="volante_a6">Volante QR A6</option>
+                <option value="meta_ads">Meta Ads (Pauta)</option>
               </select>
+              <input
+                type="text"
+                id="utm-campaign"
+                oninput="buildUTMLink()"
+                value="tucuman_nov2026"
+                placeholder="Campaña / Rubro"
+                class="min-h-[44px] px-3 py-2 rounded-xl border border-stone-300 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-950 text-xs font-bold"
+              />
             </div>
-
-            <div class="md:col-span-2">
-              <label class="block font-bold text-slate-300 mb-1">Estilo</label>
-              <select
-                id="gen-style"
-                class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-white text-xs"
+            <div class="flex items-center gap-2">
+              <input
+                type="text"
+                id="utm-output"
+                readonly
+                class="w-full min-h-[44px] px-3 py-2 rounded-xl bg-stone-100 dark:bg-zinc-950 border border-stone-300 dark:border-zinc-700 text-xs font-mono text-emerald-700 dark:text-emerald-400"
+              />
+              <button
+                onclick="copyTextById('utm-output')"
+                class="min-h-[44px] px-4 py-2 rounded-xl bg-emerald-800 hover:bg-emerald-700 text-white text-xs font-extrabold shrink-0"
               >
-                <option value="photo">Fotorrealista en local real</option>
-                <option value="3d">3D Moderno Tecnológico</option>
-                <option value="minimal">Minimalista Premium</option>
-              </select>
+                Copiar
+              </button>
             </div>
           </div>
 
-          <div class="flex flex-wrap items-center gap-3">
-            <button
-              onclick="generateCustomPrompt()"
-              class="px-5 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-black text-xs transition shadow"
-            >
-              <i class="fa-solid fa-wand-magic-sparkles mr-1.5"></i> Generar
-              Prompt + Copy Ahora
-            </button>
-            <button
-              id="btn-save-custom"
-              onclick="saveCustomPrompt()"
-              class="hidden px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs transition"
-            >
-              <i class="fa-solid fa-bookmark mr-1.5"></i> Guardar en Mis Prompts
-            </button>
-          </div>
-
-          <!-- RESULTADO GENERADO AL INSTANTE -->
+          <!-- Calculadora ROI Publicitario -->
           <div
-            id="gen-result"
-            class="hidden grid md:grid-cols-2 gap-4 pt-3 border-t border-slate-800"
+            class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 rounded-3xl p-5 sm:p-6 shadow-sm space-y-4"
           >
-            <div
-              class="bg-slate-800/80 border border-slate-700 rounded-xl p-4 space-y-2"
-            >
-              <div class="flex items-center justify-between">
-                <span
-                  id="gen-tip-badge"
-                  class="text-[11px] font-extrabold text-orange-400 uppercase"
-                  >Prompt listo para Gemini</span
+            <h3 class="text-base font-black text-stone-900 dark:text-white">
+              <i class="fa-solid fa-chart-line text-emerald-500 mr-1.5"></i>
+              Control Semanal de ROI (Meta Ads)
+            </h3>
+            <div class="grid grid-cols-3 gap-2.5">
+              <div>
+                <label
+                  class="block text-[10px] font-bold uppercase text-stone-500 mb-1"
+                  >Inversión ARS</label
                 >
-                <button
-                  onclick="copyTextById('gen-out-prompt', this)"
-                  class="px-3 py-1 rounded-lg bg-slate-700 hover:bg-orange-500 text-white text-[11px] font-bold transition"
-                >
-                  <i class="fa-regular fa-copy mr-1"></i> Copiar Prompt
-                </button>
+                <input
+                  type="number"
+                  id="roi-spend"
+                  oninput="calcAdROI()"
+                  value="15000"
+                  class="w-full min-h-[42px] px-3 py-1.5 rounded-xl border border-stone-300 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-950 text-xs font-black"
+                />
               </div>
-              <p
-                id="gen-out-prompt"
-                class="text-xs text-slate-200 leading-relaxed"
-              ></p>
-            </div>
-
-            <div
-              class="bg-slate-800/80 border border-slate-700 rounded-xl p-4 space-y-2"
-            >
-              <div class="flex items-center justify-between">
-                <span
-                  class="text-[11px] font-extrabold text-emerald-400 uppercase"
-                  >Copy + Hashtags para Instagram</span
+              <div>
+                <label
+                  class="block text-[10px] font-bold uppercase text-stone-500 mb-1"
+                  >Chats WhatsApp</label
                 >
-                <button
-                  onclick="copyTextById('gen-out-copy', this)"
-                  class="px-3 py-1 rounded-lg bg-slate-700 hover:bg-emerald-600 text-white text-[11px] font-bold transition"
-                >
-                  <i class="fa-regular fa-copy mr-1"></i> Copiar Copy
-                </button>
+                <input
+                  type="number"
+                  id="roi-chats"
+                  oninput="calcAdROI()"
+                  value="12"
+                  class="w-full min-h-[42px] px-3 py-1.5 rounded-xl border border-stone-300 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-950 text-xs font-black"
+                />
               </div>
-              <pre
-                id="gen-out-copy"
-                class="whitespace-pre-wrap font-sans text-xs text-slate-200 leading-relaxed"
-              ></pre>
+              <div>
+                <label
+                  class="block text-[10px] font-bold uppercase text-stone-500 mb-1"
+                  >Ventas Cerradas ($)</label
+                >
+                <input
+                  type="number"
+                  id="roi-sales"
+                  oninput="calcAdROI()"
+                  value="50000"
+                  class="w-full min-h-[42px] px-3 py-1.5 rounded-xl border border-stone-300 dark:border-zinc-700 bg-stone-50 dark:bg-zinc-950 text-xs font-black"
+                />
+              </div>
             </div>
+            <div
+              id="roi-result-box"
+              class="p-3 rounded-2xl bg-stone-50 dark:bg-zinc-950 border border-stone-200 dark:border-zinc-800 flex flex-wrap items-center justify-between gap-2 text-xs font-extrabold"
+            ></div>
           </div>
         </div>
 
-        <!-- MIS PROMPTS GUARDADOS (LOCALSTORAGE) -->
-        <div id="saved-prompts-section" class="hidden space-y-3">
-          <h3 class="font-black text-base text-slate-900 px-1">
-            📌 Mis Ideas Guardadas en este Dispositivo
-          </h3>
-          <div id="saved-prompts-grid" class="grid md:grid-cols-2 gap-4"></div>
-        </div>
-
-        <!-- BLOQUE A: VOLANTES / FLYERS FÍSICOS Y DIGITALES -->
+        <!-- Repositorio de Guiones de Venta y Reels -->
         <div
-          class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-5"
+          class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 rounded-3xl p-5 sm:p-6 shadow-sm space-y-4"
         >
           <div
-            class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4"
+            class="flex flex-col sm:flex-row sm:items-center justify-between gap-2"
           >
-            <div>
-              <span
-                class="text-xs font-extrabold uppercase tracking-wider text-orange-600"
+            <h3 class="text-base font-black text-stone-900 dark:text-white">
+              Guiones Listos para Copiar (Prospección Fría & Reels)
+            </h3>
+            <div class="flex flex-wrap gap-1.5">
+              <button
+                onclick="selectScript('gastro')"
+                id="scr-gastro"
+                class="min-h-[38px] px-3 py-1.5 rounded-xl text-xs font-extrabold bg-orange-500 text-white"
               >
-                Material de Calle, Mostrador y Estados de WhatsApp
-              </span>
-              <h2 class="font-black text-xl text-slate-900 mt-1">
-                Modelos de Volantes / Flyers Listos para Imprimir
-              </h2>
-              <p class="text-xs text-slate-500 mt-0.5">
-                Tip ahorro Tucumán: imprimí 4 volantes tamaño A6 por cada hoja
-                A4 (papel ilustración 150g) y agregales un código QR grande
-                apuntando a <strong>smartmenu.com.ar</strong>.
-              </p>
+                Gastronomía
+              </button>
+              <button
+                onclick="selectScript('gym')"
+                id="scr-gym"
+                class="min-h-[38px] px-3 py-1.5 rounded-xl text-xs font-extrabold bg-stone-100 dark:bg-zinc-800 text-stone-700 dark:text-zinc-300"
+              >
+                Gimnasios
+              </button>
+              <button
+                onclick="selectScript('salud')"
+                id="scr-salud"
+                class="min-h-[38px] px-3 py-1.5 rounded-xl text-xs font-extrabold bg-stone-100 dark:bg-zinc-800 text-stone-700 dark:text-zinc-300"
+              >
+                Salud / Educ.
+              </button>
+              <button
+                onclick="selectScript('ruta')"
+                id="scr-ruta"
+                class="min-h-[38px] px-3 py-1.5 rounded-xl text-xs font-extrabold bg-stone-100 dark:bg-zinc-800 text-stone-700 dark:text-zinc-300"
+              >
+                Anillo 0 Ruta/Comercio
+              </button>
             </div>
           </div>
-
-          <div id="flyers-grid" class="grid md:grid-cols-3 gap-5"></div>
+          <textarea
+            id="script-box"
+            rows="4"
+            readonly
+            class="w-full p-3.5 rounded-2xl bg-stone-50 dark:bg-zinc-950 border border-stone-300 dark:border-zinc-700 text-xs leading-relaxed text-stone-800 dark:text-zinc-200"
+          ></textarea>
+          <button
+            onclick="copyTextById('script-box')"
+            class="min-h-[40px] px-4 py-2 rounded-xl bg-emerald-800 hover:bg-emerald-700 text-white text-xs font-extrabold"
+          >
+            <i class="fa-regular fa-copy mr-1.5"></i> Copiar Guion
+          </button>
         </div>
 
-        <!-- BLOQUE B: LIBRERÍA BASE (IMÁGENES + VIDEOS REELS) -->
-        <div class="space-y-4">
+        <!-- Grilla Mensual de Contenidos (4 Semanas — 16 Piezas) -->
+        <div
+          class="bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 rounded-3xl p-5 sm:p-6 shadow-sm space-y-4"
+        >
           <div
-            class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex flex-wrap items-center justify-between gap-4"
+            class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-200 dark:border-zinc-800 pb-4"
           >
             <div>
-              <h2 class="font-black text-lg text-slate-900">
-                Librería Base (16 Imágenes + 4 Guiones de Video Reels)
+              <h2 class="text-lg font-black text-stone-900 dark:text-white">
+                Grilla Editorial Mensual (16 Piezas: 12 Placas + 4 Reels)
               </h2>
-              <p class="text-xs text-slate-500">
-                Filtrá por servicio o elegí la pestaña de Videos Reels para
-                generar clips verticales (9:16) en Gemini.
+              <p class="text-xs text-stone-500 dark:text-zinc-400">
+                Recordá generar fondos limpios sin texto en IA e integrar
+                titulares, precios en ARS y
+                <code class="text-orange-500">logo.jfif</code> en plantilla
+                fija.
               </p>
             </div>
-
-            <div class="flex flex-wrap gap-1.5 text-xs">
-              <button
-                onclick="filterPrompts('all')"
-                id="flt-all"
-                class="px-3 py-1.5 rounded-lg font-bold bg-orange-500 text-white"
-              >
-                Todos (20)
-              </button>
-              <button
-                onclick="filterPrompts('menu')"
-                id="flt-menu"
-                class="px-3 py-1.5 rounded-lg font-bold bg-slate-100 text-slate-700 hover:bg-slate-200"
-              >
-                Menús (4)
-              </button>
-              <button
-                onclick="filterPrompts('catalogo')"
-                id="flt-catalogo"
-                class="px-3 py-1.5 rounded-lg font-bold bg-slate-100 text-slate-700 hover:bg-slate-200"
-              >
-                Catálogos (4)
-              </button>
-              <button
-                onclick="filterPrompts('turnos')"
-                id="flt-turnos"
-                class="px-3 py-1.5 rounded-lg font-bold bg-slate-100 text-slate-700 hover:bg-slate-200"
-              >
-                Turnos (4)
-              </button>
-              <button
-                onclick="filterPrompts('gestion')"
-                id="flt-gestion"
-                class="px-3 py-1.5 rounded-lg font-bold bg-slate-100 text-slate-700 hover:bg-slate-200"
-              >
-                Gestión/Stock (4)
-              </button>
-              <button
-                onclick="filterPrompts('video')"
-                id="flt-video"
-                class="px-3 py-1.5 rounded-lg font-bold bg-slate-100 text-slate-700 hover:bg-slate-200"
-              >
-                🎬 Videos Reels (4)
-              </button>
-            </div>
+            <span
+              id="mkt-progress-pill"
+              class="text-xs font-black px-3 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300"
+            >
+              0 / 16 publicadas
+            </span>
           </div>
 
-          <div id="prompts-grid" class="grid md:grid-cols-2 gap-5"></div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr
+                  class="border-b border-stone-200 dark:border-zinc-800 text-[11px] uppercase text-stone-500 dark:text-zinc-400"
+                >
+                  <th class="py-3 px-2">Sem/Día</th>
+                  <th class="py-3 px-2">Rubro</th>
+                  <th class="py-3 px-2">Formato</th>
+                  <th class="py-3 px-2">Pieza / Texto Integrado</th>
+                  <th class="py-3 px-2">Estado</th>
+                </tr>
+              </thead>
+              <tbody
+                id="mkt-grid-body"
+                class="divide-y divide-stone-100 dark:divide-zinc-800"
+              ></tbody>
+            </table>
+          </div>
         </div>
       </section>
     </main>
 
     <script>
-      // ====== SEGURIDAD PIN CON HASH CRIPTOGRÁFICO SHA-256 ======
-      // El PIN por defecto ("2026") nunca aparece en texto plano en el código.
-      const DEFAULT_HASHES = [
-        "158a323a7ba44870f23d96f1516dd70aa48e9a72db4ebb026b0a89e212a208ab",
-        "fnv_40293d93",
-      ];
+      const STORAGE_KEY = "agency_smart_state_v1";
+      const PIN_KEY = "agency_smart_pin_v1";
 
-      async function computePinHash(str) {
-        if (window.crypto && window.crypto.subtle) {
-          const buf = await crypto.subtle.digest(
-            "SHA-256",
-            new TextEncoder().encode(str),
-          );
-          return Array.from(new Uint8Array(buf))
-            .map((b) => b.toString(16).padStart(2, "0"))
-            .join("");
-        }
-        let h = 2166136261 >>> 0;
-        for (let i = 0; i < str.length; i++) {
-          h ^= str.charCodeAt(i);
-          h = Math.imul(h, 16777619);
-        }
-        return "fnv_" + (h >>> 0).toString(16);
+      function toggleTheme() {
+        const html = document.documentElement;
+        const isDark = html.classList.toggle("dark");
+        localStorage.setItem("smartmenu_theme", isDark ? "dark" : "light");
+        updateThemeIcon();
+      }
+      function updateThemeIcon() {
+        const isDark = document.documentElement.classList.contains("dark");
+        document.querySelectorAll(".theme-icon").forEach((el) => {
+          el.className = isDark
+            ? "fa-solid fa-sun text-amber-400 theme-icon text-xs"
+            : "fa-solid fa-moon text-stone-700 theme-icon text-xs";
+        });
       }
 
-      function initLock() {
-        if (sessionStorage.getItem("agency_unlocked") === "1") {
-          document.getElementById("lock-screen").classList.add("hidden");
-        }
+      // =========================================================
+      // SEGURIDAD PIN
+      // =========================================================
+      function getSavedPin() {
+        return localStorage.getItem(PIN_KEY) || "2026";
       }
-
-      async function unlockApp(e) {
+      function unlockPanel(e) {
         e.preventDefault();
         const val = document.getElementById("pin-input").value.trim();
-        const hash = await computePinHash(val);
-        const customHash = localStorage.getItem("agency_custom_pin_hash");
-
-        const valid = customHash
-          ? hash === customHash
-          : DEFAULT_HASHES.includes(hash);
-
-        if (valid) {
-          sessionStorage.setItem("agency_unlocked", "1");
-          document.getElementById("lock-screen").classList.add("hidden");
+        if (val === getSavedPin()) {
+          document.getElementById("pin-lock-screen").classList.add("hidden");
           document.getElementById("pin-error").classList.add("hidden");
           document.getElementById("pin-input").value = "";
         } else {
           document.getElementById("pin-error").classList.remove("hidden");
         }
       }
-
-      function lockApp() {
-        sessionStorage.removeItem("agency_unlocked");
-        document.getElementById("lock-screen").classList.remove("hidden");
+      function lockPanel() {
+        document.getElementById("pin-lock-screen").classList.remove("hidden");
       }
-
-      async function changePinPrompt() {
-        const nuevo = prompt(
-          "Ingresá un nuevo PIN numérico (4 a 8 dígitos) para este dispositivo:",
+      function changePinPrompt() {
+        const nextPin = prompt(
+          "Ingresá el nuevo PIN numérico (4 a 8 dígitos):",
+          getSavedPin(),
         );
-        if (!nuevo) return;
-        const clean = nuevo.trim();
-        if (clean.length < 4 || clean.length > 8) {
-          alert("El PIN debe tener entre 4 y 8 caracteres.");
-          return;
+        if (nextPin && nextPin.trim().length >= 4) {
+          localStorage.setItem(PIN_KEY, nextPin.trim());
+          alert("PIN actualizado correctamente.");
         }
-        const newHash = await computePinHash(clean);
-        localStorage.setItem("agency_custom_pin_hash", newHash);
-        alert("Listo. Tu nuevo PIN quedó guardado en este dispositivo.");
       }
 
-      // Auto-bloqueo tras 15 minutos sin actividad
-      let idleTimer;
-      function resetIdleTimer() {
-        clearTimeout(idleTimer);
-        idleTimer = setTimeout(
-          () => {
-            if (sessionStorage.getItem("agency_unlocked") === "1") {
-              lockApp();
-            }
+      // =========================================================
+      // ESTADO INICIAL Y PERSISTENCIA
+      // =========================================================
+      const daysAgoISO = (days) => {
+        const d = new Date();
+        d.setDate(d.getDate() - days);
+        return d.toISOString().split("T")[0];
+      };
+      const daysFromNowISO = (days) => {
+        const d = new Date();
+        d.setDate(d.getDate() + days);
+        return d.toISOString().split("T")[0];
+      };
+
+      const DEFAULT_STATE = {
+        usdRate:
+          (window.SMARTMENU_CONFIG && window.SMARTMENU_CONFIG.usdRate) || 1600,
+        billed12m: 420000,
+        prospects: [
+          {
+            id: "PR-1",
+            business: "Sanguchería El Tucumano",
+            contact: "Carlos Medina",
+            phone: "3815442190",
+            zone: "Anillo 1: Villa 9 de Julio / Gob. del Campo",
+            rubro: "Gastronomía",
+            stage: "Presupuesto 7d",
+            amount: 50000,
+            lastContactDate: daysAgoISO(6),
+            notes: "Pidió Menú Moderno con delivery y mesas.",
           },
-          15 * 60 * 1000,
-        );
-      }
-      ["click", "keydown", "touchstart"].forEach((evt) =>
-        document.addEventListener(evt, resetIdleTimer, { passive: true }),
-      );
-      resetIdleTimer();
-
-      // ====== MANUAL DE SERVICIOS Y LÍMITES (ESTUDIO) ======
-      const SERVICES_MANUAL = [
-        {
-          title: "1. Menús Digitales (Gastronomía)",
-          target:
-            "Bares, sangucherías, pizzerías, cafeterías, heladerías, food trucks y rotiserías.",
-          plans:
-            "• Clásico ($30k): Carta de texto ultrarrápida + carrito a WhatsApp.\n• Moderno ($50k): Con fotos de platos + categorías + carrito a WhatsApp.\n• Versiones + Panel Admin ($70k / $90k): El dueño edita precios y pausa platos sin stock 24/7.",
-          limits: [
-            "NO es una app de delivery con repartidores GPS en tiempo real.",
-            "NO procesa tarjetas dentro de la web (el pedido llega sumado a WhatsApp y el local cobra por transferencia, efectivo o su propio link).",
-            "NO incluye sesión de fotos presencial (el cliente envía sus fotos o usa Menú Clásico).",
-            "Control de personal/meseros y Dashboard de métricas son extras opcionales (+$25.000 c/u).",
-          ],
-        },
-        {
-          title: "2. Smart Catálogos (Comercios y Emprendedores)",
-          target:
-            "Tiendas de ropa, showrooms, librerías, ferreterías, dietéticas, regalerías, repuestos y distribuidores.",
-          plans:
-            "• Catálogo Comercio ($50k): Vidriera web con fotos, precios, variantes y carrito directo a WhatsApp.\n• Smart Catálogo + Panel Admin ($100k): El comerciante sube/edita productos, fotos y ofertas desde su celular.",
-          limits: [
-            "NO reemplaza a MercadoLibre ni incluye pasarela de pago automática con cálculo de correoAndreani/OCA.",
-            "NO incluye carga ilimitada de miles de SKUs de distribuidora (carga inicial estándar hasta 60-80 productos; catálogos masivos se cotizan aparte).",
-            "NO incluye redacción publicitaria ni edición de estudio de cientos de fotos.",
-          ],
-        },
-        {
-          title: "3. Turnos Online (Profesionales y Servicios)",
-          target:
-            "Barberías, peluquerías, centros de estética, consultorios, kinesiólogos, gimnasios, entrenadores y canchas.",
-          plans:
-            "• Landing Turnos ($35k): Grilla horaria + selección de servicio con envío directo a WhatsApp.\n• Sistema Turnos Pro + Panel Admin ($75k): Bloqueo automático de horarios reservados 24/7 y gestión desde panel.",
-          limits: [
-            "NO envía recordatorios automáticos pagos por API oficial de WhatsApp Business (el turno ingresa por acción del cliente en WhatsApp o queda registrado en el Panel Pro).",
-            "NO cobra señas automáticas con tarjeta dentro del turnero (el profesional pide transferencia por WhatsApp si requiere seña).",
-            "NO es historia clínica médica ni facturación electrónica AFIP/ARCA.",
-          ],
-        },
-        {
-          title: "4. Gestión y Stock (Control Interno)",
-          target:
-            "Kioscos, minimarkets, almacenes, pet shops, ferreterías y comercios que hoy anotan ventas en cuaderno.",
-          plans:
-            "• Plan Integral ($120k): Incluye Panel Admin + Caja para registrar ventas, controlar inventario en tiempo real, ver alertas de stock bajo y cierres diarios.",
-          limits: [
-            "NO emite factura electrónica fiscal AFIP/ARCA ni se conecta a balanzas o lectores fiscales antiguos.",
-            "NO es un sistema contable impositivo (IVA, balances) ni liquidador de sueldos.",
-            "El módulo de múltiples empleados/cajeros con permisos y turnos de caja es un extra opcional (+$25.000).",
-          ],
-        },
-      ];
-
-      // ====== CATÁLOGO DE PRECIOS Y REQUISITOS ======
-      const CATALOG = {
-        menu: {
-          label: "Menú Digital",
-          plans: [
-            {
-              id: "m-clasico",
-              name: "Menú Clásico (Texto - WhatsApp)",
-              price: 30000,
-              pro: false,
+          {
+            id: "PR-2",
+            business: "Gimnasio Atlas Fitness",
+            contact: "Valeria Sosa",
+            phone: "3816128831",
+            zone: "Anillo 2: Banda del Río Salí / Alderetes",
+            rubro: "Gimnasio",
+            stage: "Demo enviada",
+            amount: 75000,
+            lastContactDate: daysAgoISO(3),
+            notes: "Paga software en dólares y quiere pasarse a Turnos Pro.",
+          },
+          {
+            id: "PR-3",
+            business: "Lubricentro Ruta 9",
+            contact: "Jorge Paz",
+            phone: "3814901122",
+            zone: "Anillo 0: La Garza / Circunvalación",
+            rubro: "Catálogo Comercial",
+            stage: "Visitado / Volante dejado",
+            amount: 50000,
+            lastContactDate: daysAgoISO(1),
+            notes: "Se dejó volante A6; catálogo de aceites y filtros.",
+          },
+        ],
+        slaProjects: [
+          {
+            id: "SLA-1",
+            business: "Pizzería Don Pepe (Piloto)",
+            phone: "3815309941",
+            plan: "Menú Moderno ($50.000)",
+            checks: {
+              sena: true,
+              logo: true,
+              lista: true,
+              fotos: false,
+              whatsapp: true,
             },
-            {
-              id: "m-clasico-pro",
-              name: "Menú Clásico + Panel Admin",
-              price: 70000,
-              pro: true,
-            },
-            {
-              id: "m-moderno",
-              name: "Menú Moderno (Fotos - WhatsApp)",
-              price: 50000,
-              pro: false,
-            },
-            {
-              id: "m-moderno-pro",
-              name: "Menú Moderno + Panel Admin",
-              price: 90000,
-              pro: true,
-            },
-          ],
-          addons: [
-            {
-              id: "dash",
-              name: "Dashboard de Ventas y Métricas",
-              price: 25000,
-            },
-            {
-              id: "staff",
-              name: "Control de Personal y Meseros",
-              price: 25000,
-            },
-            { id: "pdf", name: "Versión PDF Imprimible con QR", price: 15000 },
-          ],
-          reqs: [
-            "Logo de la marca y colores principales.",
-            "Lista completa de platos/bebidas con precios en ARS.",
-            "Fotos de los productos (si es Menú Moderno).",
-            "WhatsApp receptor, horarios y zonas de envío/retiro.",
-          ],
-        },
-        catalogo: {
-          label: "Tienda / Catálogo",
-          plans: [
-            {
-              id: "c-basico",
-              name: "Catálogo Comercio (WhatsApp)",
-              price: 50000,
-              pro: false,
-            },
-            {
-              id: "c-pro",
-              name: "Smart Catálogo + Panel Admin",
-              price: 100000,
-              pro: true,
-            },
-          ],
-          addons: [
-            {
-              id: "dash",
-              name: "Dashboard de Ventas y Métricas",
-              price: 25000,
-            },
-            {
-              id: "staff",
-              name: "Control de Personal / Vendedores",
-              price: 25000,
-            },
-            { id: "pdf", name: "Catálogo PDF Imprimible", price: 15000 },
-          ],
-          reqs: [
-            "Logo y paleta de colores del comercio.",
-            "Listado de productos, variantes/talles y precios en ARS.",
-            "Fotografías de los productos.",
-            "Políticas de envío, retiro y medios de pago.",
-          ],
-        },
-        turnos: {
-          label: "Turnos Online",
-          plans: [
-            {
-              id: "t-landing",
-              name: "Landing Turnos (WhatsApp)",
-              price: 35000,
-              pro: false,
-            },
-            {
-              id: "t-pro",
-              name: "Sistema Turnos Pro + Panel Admin",
-              price: 75000,
-              pro: true,
-            },
-          ],
-          addons: [
-            {
-              id: "pdf-t",
-              name: "Grilla Semanal Imprimible (PDF)",
-              price: 10000,
-            },
-            {
-              id: "rep-t",
-              name: "Reportes de Asistencia y Caja",
-              price: 20000,
-            },
-          ],
-          reqs: [
-            "Nombre del profesional o centro y logo.",
-            "Servicios, duración estimada y valores de referencia.",
-            "Días y franjas horarias disponibles.",
-            "Ubicación, WhatsApp de contacto y reglas de cancelación.",
-          ],
-        },
-        gestion: {
-          label: "Gestión y Stock",
-          plans: [
-            {
-              id: "g-pro",
-              name: "Gestión y Stock (Panel Admin + Caja)",
-              price: 120000,
-              pro: true,
-            },
-          ],
-          addons: [
-            {
-              id: "staff-c",
-              name: "Control de Empleados y Turnos de Caja",
-              price: 25000,
-            },
-            {
-              id: "pdf-s",
-              name: "Exportación de Precios / Stock en PDF",
-              price: 10000,
-            },
-          ],
-          reqs: [
-            "Logo y datos comerciales del local.",
-            "Planilla inicial de productos/insumos, costos, precios y stock.",
-            "Categorías y proveedores principales.",
-            "Usuarios / cajeros que operarán el panel.",
-          ],
-        },
+            slaStartedAt: null,
+            delivered: false,
+          },
+        ],
+        subscriptions: [
+          {
+            id: "SUB-1",
+            business: "Bar La Esquina",
+            phone: "3815220198",
+            planType: "Mensual ($20.000)",
+            amount: 20000,
+            nextDueDate: daysFromNowISO(12),
+            requestsUsed: 2,
+            requestsLimit: 4,
+          },
+          {
+            id: "SUB-2",
+            business: "Consultorio Lic. Herrera",
+            phone: "3814887710",
+            planType: "Mensual ($20.000)",
+            amount: 20000,
+            nextDueDate: daysAgoISO(12),
+            requestsUsed: 4,
+            requestsLimit: 4,
+          },
+        ],
+        marketingGrid: [
+          {
+            id: 1,
+            when: "S1 — Lun",
+            rubro: "Gastronomía",
+            format: "Placa 3:4",
+            title: "CHAU PDFs PESADOS • PEDIDOS A WHATSAPP ($30.000)",
+            status: "Publicado",
+          },
+          {
+            id: 2,
+            when: "S1 — Mié",
+            rubro: "Gastronomía",
+            format: "Placa 3:4",
+            title: "APPS: 25%–35% COMISIÓN VS SMARTMENU: 0%",
+            status: "Programado Meta Business",
+          },
+          {
+            id: 3,
+            when: "S1 — Vie",
+            rubro: "Gastronomía",
+            format: "Reel 9:16",
+            title: "Demo real armando pedido en Menú Moderno (22s)",
+            status: "Textos y Logo integrados",
+          },
+          {
+            id: 4,
+            when: "S1 — Dom",
+            rubro: "Gastronomía",
+            format: "Carrusel 1:1",
+            title: "CLÁSICO ($30k) • MODERNO ($50k) • BAR EN VIVO ($90k)",
+            status: "Idea",
+          },
+          {
+            id: 5,
+            when: "S2 — Lun",
+            rubro: "Catálogos",
+            format: "Placa 3:4",
+            title: "DEJÁ DE MANDAR 20 FOTOS SUELTAS POR CHAT ($50k)",
+            status: "Idea",
+          },
+          {
+            id: 6,
+            when: "S2 — Mié",
+            rubro: "Catálogos",
+            format: "Placa 3:4",
+            title: "IDEAL AUTOS, LIBRERÍAS, FITNESS Y SHOWROOMS",
+            status: "Idea",
+          },
+          {
+            id: 7,
+            when: "S2 — Vie",
+            rubro: "Gestión/Stock",
+            format: "Reel 9:16",
+            title: "Vendé online y descontá stock en vivo (25s)",
+            status: "Idea",
+          },
+          {
+            id: 8,
+            when: "S2 — Dom",
+            rubro: "Gestión/Stock",
+            format: "Placa 3:4",
+            title: "STOCK + CAJA + CLIENTES EN TIEMPO REAL ($120k)",
+            status: "Idea",
+          },
+          {
+            id: 9,
+            when: "S3 — Lun",
+            rubro: "Gimnasios",
+            format: "Placa 3:4",
+            title: "¿SEGUÍS PAGANDO SOFTWARE EN DÓLARES? Turnos desde $35k",
+            status: "Idea",
+          },
+          {
+            id: 10,
+            when: "S3 — Mié",
+            rubro: "Salud/Educ.",
+            format: "Placa 3:4",
+            title: "TURNOS 24/7 PARA CONSULTORIOS Y CLASES",
+            status: "Idea",
+          },
+          {
+            id: 11,
+            when: "S3 — Vie",
+            rubro: "Turnos",
+            format: "Reel 9:16",
+            title: "Elegí entre 5 formatos de agenda en vivo (25s)",
+            status: "Idea",
+          },
+          {
+            id: 12,
+            when: "S3 — Dom",
+            rubro: "Salud/Educ.",
+            format: "Placa 3:4",
+            title: "AGENDA PROPIA .smartmenu.com.ar SIN COMISIONES",
+            status: "Idea",
+          },
+          {
+            id: 13,
+            when: "S4 — Lun",
+            rubro: "Institucional",
+            format: "Placa 3:4",
+            title: "SOPORTE HUMANO EN TUCUMÁN • ENTREGA EN 72 HS",
+            status: "Idea",
+          },
+          {
+            id: 14,
+            when: "S4 — Mié",
+            rubro: "Objeciones",
+            format: "Placa 3:4",
+            title: "3 DUDAS RESUELTAS ANTES DE CONTRATAR",
+            status: "Idea",
+          },
+          {
+            id: 15,
+            when: "S4 — Vie",
+            rubro: "Ecosistema",
+            format: "Reel 9:16",
+            title: "Recorrido por los 4 rubros en smartmenu.com.ar (20s)",
+            status: "Idea",
+          },
+          {
+            id: 16,
+            when: "S4 — Dom",
+            rubro: "Cierre Mes",
+            format: "Placa 3:4",
+            title: "PEDÍ TU DEMO PERSONALIZADA SIN CARGO + QR",
+            status: "Idea",
+          },
+        ],
       };
 
-      const MAINT = {
-        monthly: {
-          label: "Mantenimiento Mensual",
-          price: 20000,
-          suffix: "/ mes",
-        },
-        annual: {
-          label: "Mantenimiento Anual (50% OFF)",
-          price: 120000,
-          suffix: "/ año",
-        },
-        none: { label: "Solo Setup Inicial (sin abono)", price: 0, suffix: "" },
-      };
+      let state = loadState();
 
-      const OBJECTIONS = [
-        {
-          q: '1. "Ya tengo un menú o catálogo en PDF y me alcanza"',
-          a: "Totalmente, el PDF sirve para salir del paso, pero hoy te frena ventas: el cliente tiene que descargar un archivo pesado, hacer zoom en el celular y después escribirte todo a mano (donde muchas veces se confunden los precios o se arrepienten). Con SmartMenu entran directo desde el navegador sin descargar nada, arman el carrito y te llega el pedido ya sumado a tu WhatsApp.",
-        },
-        {
-          q: '2. "Me parece caro / Ahora estamos justos de presupuesto"',
-          a: "Te entiendo perfecto, por eso armamos planes desde $30.000 de pago único inicial, sin cobrarte un peso de comisión por venta. Pensalo así: si un fin de semana recuperás apenas 3 o 4 pedidos que antes se perdían por demora en responder, el sistema ya se pagó solo y te queda trabajando todos los días.",
-        },
-        {
-          q: '3. "¿Me cobran comisión por pedido como las apps de delivery?"',
-          a: "Cero comisiones. Nosotros no tocamos tu plata ni nos quedamos con un porcentaje de tus ventas. El cliente te pide por tu web, el mensaje cae directo a tu WhatsApp y vos cobrás por transferencia, efectivo o MercadoPago quedándote con el 100% de la ganancia.",
-        },
-        {
-          q: '4. "No tengo tiempo de pasar todos los precios y fotos"',
-          a: "No hace falta que armes nada complicado: me mandás una foto nítida de tu carta actual, un audio o una lista simple por WhatsApp y nosotros nos encargamos de cargar y ordenar todo en 72 hs hábiles.",
-        },
-        {
-          q: '5. "¿Y si la semana que viene tengo que cambiar los precios?"',
-          a: "Tenés dos opciones según cómo prefieras trabajar: si elegís el abono mensual de $20.000, nos avisás por WhatsApp y nosotros te actualizamos los precios en el día; y si preferís total autonomía 24/7, podés optar por la versión con Panel Admin para editarlos vos mismo desde el celular en segundos.",
-        },
-        {
-          q: '6. "Lo tengo que consultar con mi socio / encargado"',
-          a: "Me parece perfecto. Te paso ahora mismo el presupuesto formal en PDF (que tiene validez por 7 días) junto con el enlace de la demo interactiva para que lo prueben juntos desde el celular en dos minutos. ¿Te parece si te escribo el jueves para ver qué definieron?",
-        },
-        {
-          q: '7. "¿Cómo es la forma de pago y entrega?"',
-          a: "Trabajamos con 50% de seña al confirmar el presupuesto y 50% contra entrega una vez que ves tu web funcionando. Desde que recibimos tu logo y la lista de productos/horarios completa, en 72 hs hábiles lo tenés online con su QR y Guía PDF de uso.",
-        },
-      ];
-
-      const FLYERS = [
-        {
-          title: "Volante 1: Gastronomía (Bares, Sangucherías, Cafeterías)",
-          headline: "DEJÁ DE PERDER PEDIDOS CON PDFs PESADOS 🍔📲",
-          body: "• Tu carta web interactiva con código QR para mesas y delivery.\n• Tus clientes arman el pedido y te llega SUMADO y ORDENADO a WhatsApp.\n• 0% comisiones por venta (el 100% de la ganancia es tuya).\n• Listo en 72 hs hábiles • Desde $30.000 (pago único inicial).\n\n👉 Probá la demo en vivo ahora: smartmenu.com.ar\n📲 WhatsApp Tucumán: 381 632-0130 | IG: @smartmenuprofesional",
-          prompt:
-            "Relación de aspecto 3:4. Diseño gráfico publicitario profesional tamaño vertical A6 para imprenta. Fondo oscuro moderno tipo pizarra elegante con detalles en naranja vibrante (#F97316). En el centro, un smartphone mostrando un menú digital interactivo con fotos de hamburguesa gourmet y botón naranja, acompañado de un código QR nítido en una esquina. Estilo comercial limpio, iluminación de estudio, espacio superior e inferior despejado para agregar texto en español.",
-        },
-        {
-          title:
-            "Volante 2: Comercios, Gimnasios y Consultorios (Catálogos, Turnos y Stock)",
-          headline: "DIGITALIZÁ TU NEGOCIO Y AHORRÁ HORAS DE WHATSAPP 🚀",
-          body: "• Smart Catálogo Online: mostrale tus productos con precios y recibí pedidos armados ($50.000).\n• Turnos Online 24/7: tus clientes reservan horario sin ida y vuelta de mensajes ($35.000).\n• Gestión y Stock: controlá caja, inventario y ventas en tiempo real ($120.000).\n\n👉 Mirá todos los sistemas en vivo: smartmenu.com.ar\n📲 Consultas Tucumán y todo el país: 381 632-0130",
-          prompt:
-            "Relación de aspecto 3:4. Diseño gráfico corporativo moderno vertical A6. Fondo azul pizarra oscuro con acentos naranja brillante y verde esmeralda. Composición limpia con tres íconos 3D minimalistas: una bolsa de compras digital, un calendario de turnos con tilde y un panel de control de stock en una tablet moderna. Estética tecnológica confiable, espacio libre para titulares.",
-        },
-        {
-          title:
-            "Volante 3: Express Mostrador / Bajo Puerta (Cuando el dueño no está)",
-          headline: "¿QUERÉS VENDER MÁS POR WHATSAPP SIN PAGAR COMISIONES? 📲",
-          body: "Pasamos por tu local y como estabas ocupado te dejamos nuestra tarjeta:\n\n✅ Menús Digitales QR (desde $30.000)\n✅ Catálogos Online con Carrito ($50.000)\n✅ Turnos Online 24/7 ($35.000)\n✅ Sistemas de Gestión y Stock ($120.000)\n\n⚡ Listo en 72 hs hábiles • Soporte directo en Tucumán.\n👉 Escaneá o entrá a: smartmenu.com.ar\n📲 Escribinos o llamanos al: 381 632-0130",
-          prompt:
-            "Relación de aspecto 3:4. Diseño minimalista de tarjeta comercial / volante limpio sobre fondo blanco puro con marco naranja vibrante (#F97316) y detalles en gris pizarra oscuro. En el centro-derecha un smartphone moderno mostrando un mensaje de pedido ordenado en WhatsApp con tilde verde y un código QR grande en la esquina inferior. Estilo corporativo claro, nítido y fácil de leer al imprimir.",
-        },
-      ];
-
-      const MONTHLY_PROMPTS = [
-        {
-          cat: "menu",
-          badge: "Menús Digitales • Imagen 3:4",
-          title: "Adiós al PDF incómodo en el celular",
-          prompt:
-            "Relación de aspecto 3:4. Fotografía fotorrealista sobre una mesa de madera de bar en Tucumán: un smartphone muestra un menú web moderno con pestañas interactivas y fotos tentadoras de lomitos y bebidas, mientras al lado se ve una tarjeta acrílica con código QR y acentos en color naranja vibrante (#F97316). Iluminación cálida de restaurante, enfoque nítido en la pantalla, sin textos superpuestos.",
-          copy: "¿Tus clientes todavía tienen que descargar un PDF y hacer zoom para ver qué vendés? 😵‍💫 Con SmartMenu escanean el QR o entran a tu link, eligen sus platos y te mandan el pedido listo a WhatsApp. Sin apps y sin comisiones. 👉 Probá la demo en smartmenu.com.ar",
-          tags: "#MenuDigital #GastronomiaTucuman #BaresTucuman #SmartMenu #CartaQR #SanMiguelDeTucuman",
-        },
-        {
-          cat: "menu",
-          badge: "Menús Digitales • Imagen 1:1",
-          title: "Pedido sumado y sin errores directo a WhatsApp",
-          prompt:
-            "Relación de aspecto 1:1. Ilustración 3D fotorrealista sobre fondo oscuro elegante. Primer plano de un smartphone mostrando una burbuja de chat limpia con un pedido ordenado y un botón verde de WhatsApp. Flotando arriba, un tilde verde esmeralda brillante y destellos en naranja vibrante. Estética limpia y profesional.",
-          copy: "Basta de audios largos o pedidos incompletos los sábados a la noche. ✅📲 Con SmartMenu recibís cantidad, detalle, total sumado y dirección del cliente listos para mandar a cocina. 💬 Escribinos al 381 632-0130 y lo armamos en 72 hs.",
-          tags: "#WhatsAppBusiness #DeliveryTucuman #SmartMenu #SangucheriaTucumana #VentasGastronomicas",
-        },
-        {
-          cat: "menu",
-          badge: "Menús Digitales • Imagen 1:1",
-          title: "Cero comisiones por venta (100% ganancia tuya)",
-          prompt:
-            "Relación de aspecto 1:1. Ilustración 3D moderna sobre fondo verde petróleo muy oscuro. Una mano humana y una mano tecnológica estrechándose, con destellos de luz naranja vibrante y un ícono minimalista de porcentaje en cero flotando en el centro. Transmite alianza comercial y rentabilidad.",
-          copy: "Las apps tradicionales se quedan con gran parte de tu margen. 🤝 Con SmartMenu pagás un setup inicial único (desde $30.000) y el 100% de cada venta va directo a tu bolsillo. Mirá los planes en smartmenu.com.ar",
-          tags: "#CeroComisiones #RentabilidadGastronomica #EmprenderEnTucuman #SmartMenu #RestaurantesTucuman",
-        },
-        {
-          cat: "menu",
-          badge: "Menús Digitales • Imagen 3:4",
-          title: "Menú Clásico vs. Menú Moderno con Panel Admin",
-          prompt:
-            "Relación de aspecto 3:4. Composición de estudio sobre fondo oscuro mate. Dos smartphones lado a lado: el izquierdo muestra una carta tipográfica minimalista clara; el derecho muestra un menú visual oscuro con fotos de platos, botones naranja y una tablet detrás con un panel de control de precios. Iluminación premium.",
-          copy: "Elegí el nivel ideal para tu local: Menú Clásico minimalista ($30.000), Menú Moderno con fotos ($50.000) o versión con Panel Admin 24/7 para pausar productos sin stock al instante. 🚀 Consultanos sin compromiso.",
-          tags: "#MenuDigitalTucuman #YerbaBuena #SmartMenu #InnovacionGastronomica #SoftwareTucuman",
-        },
-        {
-          cat: "catalogo",
-          badge: "Smart Catálogos • Imagen 3:4",
-          title: "Tu vidriera online abierta las 24 horas",
-          prompt:
-            "Relación de aspecto 3:4. Fotografía fotorrealista en un local comercial moderno: un smartphone sobre el mostrador muestra un catálogo web elegante con fotos de productos, tarjetas limpias y botones naranja de agregar al carrito. Fondo desenfocado cálido y profesional.",
-          copy: "Dejá de mandar 20 fotos sueltas cada vez que te preguntan precios por Instagram o WhatsApp. 🛍️✨ Con Smart Catálogo tus clientes ven todo ordenado por categorías, arman su carrito y te envían la consulta lista para cerrar la venta.",
-          tags: "#CatalogoDigital #TiendaOnline #ComerciosTucuman #SmartMenu #EmprendedoresArgentina",
-        },
-        {
-          cat: "catalogo",
-          badge: "Smart Catálogos • Imagen 1:1",
-          title: "Ideal para indumentaria, librerías, tecnología y más",
-          prompt:
-            "Relación de aspecto 1:1. Composición 3D limpia sobre fondo oscuro con detalles naranja. Un smartphone en el centro rodeado de pequeños íconos flotantes minimalistas: una remera, un cuaderno, auriculares y un carrito de compras con burbuja verde. Iluminación suave de estudio.",
-          copy: "Ya sea que tengas local a la calle o vendas desde tu casa, un Smart Catálogo multiplica tu imagen profesional y agiliza cada consulta. Desde $50.000 pago único inicial y listo en 72 hs hábiles. 👉 Probá la demo en smartmenu.com.ar",
-          tags: "#VentasPorWhatsApp #CatalogoWeb #ShowroomTucuman #SmartCatalogo #NegociosDigitales",
-        },
-        {
-          cat: "catalogo",
-          badge: "Smart Catálogos • Imagen 1:1",
-          title: "Precios claros y cambio rápido cuando quieras",
-          prompt:
-            "Relación de aspecto 1:1. Fotografía de estudio fotorrealista: una laptop abierta mostrando un panel administrativo limpio donde se actualiza una lista de productos con un clic, y al lado un celular reflejando el cambio al instante con acentos naranja y verde esmeralda.",
-          copy: "¿Cambian los precios de tus proveedores? Con Smart Catálogo mantenés tu lista siempre al día sin rehacer folletos ni perder ventas por desactualización. Elegí entre mantenimiento mensual o Panel Admin propio 24/7.",
-          tags: "#GestionComercial #SmartMenu #ComercioLocal #TucumanEmprende #TransformacionDigital",
-        },
-        {
-          cat: "catalogo",
-          badge: "Smart Catálogos • Imagen 3:4",
-          title: "Catálogo Web + Versión PDF Imprimible",
-          prompt:
-            "Relación de aspecto 3:4. Composición sobre escritorio moderno oscuro: un smartphone mostrando un catálogo interactivo con código QR junto a un catálogo impreso elegante sobre papel ilustración y una taza de café. Estética ejecutiva con detalles naranja.",
-          copy: "Combiná lo mejor de dos mundos: tu Smart Catálogo interactivo para compartir por link en redes y la opción de versión PDF lista para imprimir o mandar a clientes mayoristas. 📲 Escribinos y te asesoramos.",
-          tags: "#MayoristasArgentina #CatalogoInteractivo #SmartMenu #VentasOnline #Tucuman",
-        },
-        {
-          cat: "turnos",
-          badge: "Turnos Online • Imagen 3:4",
-          title: "Dejá de perder tiempo coordinando horarios por chat",
-          prompt:
-            "Relación de aspecto 3:4. Fotografía fotorrealista en una barbería o centro de estética moderno: un smartphone muestra una grilla horaria limpia con bloques disponibles en verde y botones naranja para reservar turno. Iluminación natural y estética moderna.",
-          copy: "¿Cuántos mensajes intercambiás por día hasta que un cliente elige horario? ⏳📅 Con Turnos SmartMenu tus clientes ven los horarios disponibles, eligen el servicio y te llega la reserva ordenada directo a WhatsApp. Desde $35.000.",
-          tags: "#TurnosOnline #BarberiasTucuman #EsteticaTucuman #SmartMenu #AgendaDigital",
-        },
-        {
-          cat: "turnos",
-          badge: "Turnos Online • Imagen 1:1",
-          title: "Agenda inteligente para gimnasios, consultorios y canchas",
-          prompt:
-            "Relación de aspecto 1:1. Ilustración 3D moderna sobre fondo oscuro: un calendario digital flotante con bloques horarios organizados, un reloj minimalista y un tilde de confirmación en naranja brillante y verde esmeralda. Diseño limpio y tecnológico.",
-          copy: "Gimnasios, consultorios, peluquerías y complejos deportivos: organizá tu semana sin superposiciones. Con Sistema Turnos Pro + Panel Admin los horarios ocupados se bloquean automáticamente las 24 hs. 👉 Mirá la demo en smartmenu.com.ar",
-          tags: "#GimnasiosTucuman #Consultorios #TurneroWeb #SmartMenu #Automatizacion",
-        },
-        {
-          cat: "turnos",
-          badge: "Turnos Online • Imagen 1:1",
-          title: "Tu agenda abierta incluso mientras dormís",
-          prompt:
-            "Relación de aspecto 1:1. Fotografía fotorrealista en primer plano: una mano sosteniendo un smartphone de noche con luz cálida suave, seleccionando un horario en una interfaz web limpia en tonos oscuros y naranja con un ícono de confirmación.",
-          copy: "Muchos clientes buscan turno a la noche cuando tu local ya cerró. 🌙📲 Con tu link de Turnos Online en la bio de Instagram reservan en 15 segundos y vos arrancás el día con la agenda ordenada.",
-          tags: "#Agenda247 #ProfesionalesTucuman #SmartMenu #ReservasOnline #Servicios",
-        },
-        {
-          cat: "turnos",
-          badge: "Turnos Online • Imagen 3:4",
-          title: "Grilla semanal clara para todo tu equipo",
-          prompt:
-            "Relación de aspecto 3:4. Fotografía en una recepción moderna: una tablet sobre el mostrador muestra un panel administrativo de turnos por profesional y horario, con interfaz clara y acentos naranja. Ambiente ordenado y profesional.",
-          copy: "Si trabajás con varios profesionales o camillas/box, organizá cada agenda desde un solo Panel Admin y evitá confusiones en recepción. Consultanos por Turnos Pro en smartmenu.com.ar",
-          tags: "#GestionDeTurnos #ClinicasTucuman #PeluqueriasTucuman #SmartMenu #SoftwareLocal",
-        },
-        {
-          cat: "gestion",
-          badge: "Gestión y Stock • Imagen 3:4",
-          title: "Controlá tu stock y tu caja sin planillas complicadas",
-          prompt:
-            "Relación de aspecto 3:4. Fotografía fotorrealista en el mostrador de un comercio moderno: una notebook muestra un panel de control de stock con gráficos limpios, alertas de reposición y cierre de caja en tonos claros y acentos naranja vibrante. Iluminación profesional.",
-          copy: "¿Sabés exactamente cuánto vendiste hoy y qué mercadería te está quedando sin stock? 📊📦 Con nuestro sistema de Gestión y Stock tenés Panel Admin + Caja incluidos para controlar todo desde cualquier dispositivo.",
-          tags: "#ControlDeStock #SistemaDeGestion #ComerciosArgentina #SmartMenu #PymesTucuman",
-        },
-        {
-          cat: "gestion",
-          badge: "Gestión y Stock • Imagen 1:1",
-          title: "Todo conectado: tienda, ventas e inventario en vivo",
-          prompt:
-            "Relación de aspecto 1:1. Ilustración 3D corporativa sobre fondo oscuro: un tablero central luminoso en naranja y verde conectando tres nodos minimalistas: carrito web, caja registradora y depósito de inventario. Estética tecnológica confiable.",
-          copy: "Cada venta descuenta stock al instante y queda registrada en tu historial. Dejá atrás los cuadernos y las planillas sueltas con un sistema pensado para el ritmo real de los comercios de Tucumán y todo el país.",
-          tags: "#Inventario #PuntoDeVenta #GestionComercial #SmartMenu #SoftwareTucuman",
-        },
-        {
-          cat: "gestion",
-          badge: "Gestión y Stock • Imagen 1:1",
-          title: "Módulo opcional de empleados y turnos de caja",
-          prompt:
-            "Relación de aspecto 1:1. Fotografía de estudio fotorrealista: una tablet en un mostrador comercial mostrando perfiles de cajeros/vendedores con permisos diferenciados y resumen diario de movimientos, con interfaz moderna y acentos naranja.",
-          copy: "Cuando tu negocio crece, necesitás orden en el equipo. Sumá el módulo de Control de Empleados y Turnos de Caja para saber quién operó cada venta y cerrar cada jornada con total claridad. 👉 Consultanos en smartmenu.com.ar",
-          tags: "#ControlDeCaja #NegociosEnCrecimiento #SmartMenu #EmprendedoresTucuman",
-        },
-        {
-          cat: "gestion",
-          badge: "Gestión y Stock • Imagen 3:4",
-          title: "Implementación rápida con Guía PDF incluida",
-          prompt:
-            "Relación de aspecto 3:4. Composición limpia sobre escritorio moderno: una laptop con un panel de Gestión y Stock activo junto a una guía impresa elegante y un smartphone. Paleta visual en pizarra oscuro, blanco y naranja.",
-          copy: "No necesitás sistemas gigantes ni capacitaciones eternas. Implementamos tu sistema de Gestión y Stock con tus productos cargados y te entregamos tu Guía PDF paso a paso para que lo domines desde el primer día. 📲 381 632-0130",
-          tags: "#Digitalizacion #SmartMenu #Tucuman #SistemaWeb #GestionDeNegocios",
-        },
-        {
-          cat: "video",
-          badge: "🎬 Video Reel 9:16 • Menús Digitales",
-          title: "De escanear el QR a recibir el pedido en WhatsApp",
-          prompt:
-            "Video vertical 9:16 cinematográfico y fluido. Plano secuencia en primera persona sobre la mesa de un bar moderno: una mano acerca un smartphone a un soporte acrílico con código QR; al instante se despliega en pantalla un menú digital oscuro con fotos apetitosas y botones naranja vibrante, el dedo toca dos platos y aparece un destello verde de pedido enviado. Iluminación cálida de restaurante, movimiento de cámara suave, sin texto superpuesto.",
-          copy: "Así de rápido te piden tus clientes cuando cambiás el PDF por un SmartMenu 🚀📲 Escanean, eligen y te llega todo sumado a WhatsApp en segundos. Probá la demo en el link de la bio.",
-          tags: "#ReelsTucuman #MenuDigital #BaresTucuman #SmartMenu #GastronomiaArgentina",
-        },
-        {
-          cat: "video",
-          badge: "🎬 Video Reel 9:16 • Smart Catálogos",
-          title: "Tu catálogo comercial girando en 3D con estética premium",
-          prompt:
-            "Video vertical 9:16 estilo comercial tecnológico sobre fondo oscuro elegante con luces ambientales naranja (#F97316) y verde esmeralda. Un smartphone moderno flota y gira suavemente mostrando en su pantalla una tienda catálogo interactiva con productos, precios claros y un carrito de compras que se llena con íconos flotantes minimalistas. Movimiento de cámara orbital suave, sin letras pequeñas.",
-          copy: "Transformá tus consultas de Instagram en ventas reales con tu propio Smart Catálogo 24/7 🛍️✨ Sin comisiones y listo en 72 hs hábiles. Escribinos al 381 632-0130.",
-          tags: "#CatalogoDigital #EmprendedoresTucuman #SmartMenu #VentasOnline #ReelsArgentina",
-        },
-        {
-          cat: "video",
-          badge: "🎬 Video Reel 9:16 • Turnos Online",
-          title: "Reserva de turnos en un toque sin ida y vuelta",
-          prompt:
-            "Video vertical 9:16 fotorrealista en una barbería o estudio moderno con luz natural. Primer plano de un smartphone apoyado sobre el mostrador donde un calendario digital interactivo ilumina horarios disponibles en verde esmeralda y un dedo selecciona un turno con un efecto visual limpio en naranja vibrante. Movimiento de cámara lento hacia adelante (push-in), sin textos superpuestos.",
-          copy: "Dejá de perder tiempo contestando '¿qué horario te queda libre?' 📅⚡ Con Turnos SmartMenu tu agenda trabaja sola las 24 horas. Mirá cómo funciona en smartmenu.com.ar",
-          tags: "#TurnosOnline #BarberiasTucuman #Estetica #SmartMenu #NegociosDigitales",
-        },
-        {
-          cat: "video",
-          badge: "🎬 Video Reel 9:16 • Gestión y Stock",
-          title: "Control total de caja e inventario en tiempo real",
-          prompt:
-            "Video vertical 9:16 moderno y dinámico en un comercio luminoso. La cámara hace un paneo suave desde una tablet en el mostrador que muestra un dashboard limpio con barras de stock subiendo y tildes verdes de control, hacia un smartphone sincronizado al instante con acentos naranja. Estética profesional, enfoque nítido, sin texto superpuesto.",
-          copy: "Ordená tu stock, controlá tus ventas y cerrá la caja sin errores 📊📦 Conocé nuestro sistema integral de Gestión y Stock para comercios de Tucumán y todo el país.",
-          tags: "#ControlDeStock #ComerciosTucuman #SmartMenu #SistemaDeGestion #Pymes",
-        },
-      ];
-
-      const ars = (n) => "$ " + Number(n || 0).toLocaleString("es-AR");
-
-      function switchTab(tab) {
-        ["presupuesto", "mensajes", "ventas", "prompts"].forEach((t) => {
-          document
-            .getElementById(`panel-${t}`)
-            .classList.toggle("hidden", t !== tab);
-          document.getElementById(`tab-btn-${t}`).className =
-            `px-3.5 py-2 rounded-xl text-xs font-extrabold transition ${
-              t === tab
-                ? "bg-orange-500 text-white"
-                : "bg-slate-800 hover:bg-slate-700 text-slate-200"
-            }`;
-        });
-        if (tab === "mensajes") renderMessages();
-      }
-
-      function toggleGeminiGuide() {
-        const body = document.getElementById("gemini-guide-body");
-        const btn = document.getElementById("btn-toggle-guide");
-        const isHidden = body.classList.toggle("hidden");
-        btn.textContent = isHidden ? "Mostrar guía" : "Ocultar guía";
-      }
-
-      function newQuoteNumber() {
-        const rand = String(Math.floor(100 + Math.random() * 900));
-        document.getElementById("pdf-code").textContent = `SM-2026-${rand}`;
-      }
-
-      function onServiceChange() {
-        const srvKey = document.getElementById("inp-servicio").value;
-        const srv = CATALOG[srvKey];
-
-        const planSelect = document.getElementById("inp-plan");
-        planSelect.innerHTML = srv.plans
-          .map(
-            (p) =>
-              `<option value="${p.id}">${p.name} — ${ars(p.price)}</option>`,
-          )
-          .join("");
-
-        const addonsDiv = document.getElementById("inp-addons");
-        addonsDiv.innerHTML = srv.addons
-          .map(
-            (a) => `
-          <label class="flex items-center justify-between p-2.5 rounded-xl border border-slate-200 cursor-pointer">
-            <span class="flex items-center gap-2">
-              <input type="checkbox" class="addon-chk" data-name="${a.name}" data-price="${a.price}" onchange="renderQuote()" />
-              <span>${a.name}</span>
-            </span>
-            <span class="font-bold text-orange-600">+${ars(a.price)}</span>
-          </label>
-        `,
-          )
-          .join("");
-
-        renderQuote();
-      }
-
-      function renderQuote() {
-        const srvKey = document.getElementById("inp-servicio").value;
-        const srv = CATALOG[srvKey];
-        const plan =
-          srv.plans.find(
-            (p) => p.id === document.getElementById("inp-plan").value,
-          ) || srv.plans[0];
-
-        const maintSelect = document.getElementById("inp-maint");
-        const noneOpt = maintSelect.querySelector('option[value="none"]');
-        if (plan.pro) {
-          noneOpt.disabled = true;
-          if (maintSelect.value === "none") maintSelect.value = "monthly";
-        } else {
-          noneOpt.disabled = false;
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return JSON.parse(JSON.stringify(DEFAULT_STATE));
+          return {
+            ...JSON.parse(JSON.stringify(DEFAULT_STATE)),
+            ...JSON.parse(raw),
+          };
+        } catch {
+          return JSON.parse(JSON.stringify(DEFAULT_STATE));
         }
-        const maint = MAINT[maintSelect.value];
+      }
 
-        const validityDays = Math.max(
-          1,
-          parseInt(document.getElementById("inp-validez").value || "7", 10),
-        );
+      function saveState() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        updateGlobalKPIs();
+      }
+
+      function formatARS(val) {
+        return new Intl.NumberFormat("es-AR", {
+          style: "currency",
+          currency: "ARS",
+          minimumFractionDigits: 0,
+        }).format(val || 0);
+      }
+
+      function diffDaysFromToday(isoDate) {
+        if (!isoDate) return 0;
+        const then = new Date(isoDate + "T00:00:00");
         const now = new Date();
-        const due = new Date(now.getTime() + validityDays * 86400000);
-        document.getElementById("pdf-date").textContent =
-          now.toLocaleDateString("es-AR");
-        document.getElementById("pdf-due").textContent =
-          due.toLocaleDateString("es-AR");
+        now.setHours(0, 0, 0, 0);
+        return Math.floor((now - then) / (1000 * 60 * 60 * 24));
+      }
 
-        const cliente =
-          document.getElementById("inp-cliente").value.trim() || "A confirmar";
-        const negocio =
-          document.getElementById("inp-negocio").value.trim() || "A confirmar";
-        document.getElementById("pdf-cliente").textContent = cliente;
-        document.getElementById("pdf-negocio").textContent = negocio;
+      // =========================================================
+      // NAVEGACIÓN DE MÓDULOS Y KPIs
+      // =========================================================
+      function switchModule(mod) {
+        ["crm", "sla", "finance", "marketing"].forEach((m) => {
+          document
+            .getElementById(`mod-${m}`)
+            .classList.toggle("hidden", m !== mod);
+          const btn = document.getElementById(`nav-${m}`);
+          btn.className =
+            m === mod
+              ? "min-h-[44px] px-4 py-2 rounded-xl text-xs sm:text-sm font-black whitespace-nowrap flex items-center gap-2 bg-emerald-800 text-white shadow transition"
+              : "min-h-[44px] px-4 py-2 rounded-xl text-xs sm:text-sm font-black whitespace-nowrap flex items-center gap-2 text-stone-700 dark:text-zinc-300 hover:bg-stone-100 dark:hover:bg-zinc-800 transition";
+        });
+      }
 
-        let rows = [
-          `<tr><td class="p-3 font-bold text-slate-900">${plan.name} <span class="text-slate-400 font-normal">(${srv.label})</span></td><td class="p-3 font-bold text-right">${ars(plan.price)}</td></tr>`,
-        ];
-        let total = plan.price;
+      function updateGlobalKPIs() {
+        // CRM
+        const activeProspects = state.prospects.filter(
+          (p) => p.stage !== "Entregado",
+        );
+        let alertCount = 0;
+        activeProspects.forEach((p) => {
+          const days = diffDaysFromToday(p.lastContactDate);
+          if (
+            ([
+              "Visitado / Volante dejado",
+              "Demo enviada",
+              "Presupuesto 7d",
+            ].includes(p.stage) &&
+              days >= 2) ||
+            (p.stage === "Presupuesto 7d" && days >= 6)
+          ) {
+            alertCount++;
+          }
+        });
+        document.getElementById("kpi-crm-total").innerText =
+          activeProspects.length;
+        document.getElementById("kpi-crm-alerts").innerText =
+          `${alertCount} alerta(s) de seguimiento`;
 
-        document.querySelectorAll(".addon-chk:checked").forEach((chk) => {
-          const p = Number(chk.dataset.price);
-          total += p;
-          rows.push(
-            `<tr><td class="p-3 text-slate-700">+ ${chk.dataset.name}</td><td class="p-3 font-semibold text-right">${ars(p)}</td></tr>`,
-          );
+        // SLA
+        const activeSLA = state.slaProjects.filter(
+          (s) => !s.delivered && s.slaStartedAt,
+        ).length;
+        const blockedSLA = state.slaProjects.filter(
+          (s) => !s.delivered && !s.slaStartedAt,
+        ).length;
+        document.getElementById("kpi-sla-active").innerText = activeSLA;
+        document.getElementById("kpi-sla-blocked").innerText =
+          `${blockedSLA} esperando insumos`;
+
+        // Abonos
+        const mrr = state.subscriptions.reduce(
+          (acc, sub) => acc + (sub.amount || 0),
+          0,
+        );
+        const overdueCount = state.subscriptions.filter(
+          (sub) => diffDaysFromToday(sub.nextDueDate) > 10,
+        ).length;
+        document.getElementById("kpi-mrr").innerText = formatARS(mrr);
+        document.getElementById("kpi-overdue").innerText =
+          `${overdueCount} en mora (>10 días)`;
+
+        // ARCA Cat A ($12.009.410,45)
+        const catALimit = 12009410.45;
+        const pct = Math.min(
+          100,
+          Math.round((state.billed12m / catALimit) * 100),
+        );
+        document.getElementById("kpi-arca-pct").innerText = `${pct}%`;
+        document.getElementById("kpi-arca-amount").innerText =
+          `${formatARS(state.billed12m)} / $12.009.410`;
+      }
+
+      // =========================================================
+      // MÓDULO A: CRM
+      // =========================================================
+      const STAGES = [
+        "Detectado",
+        "Visitado / Volante dejado",
+        "Demo enviada",
+        "Presupuesto 7d",
+        "Seña 50%",
+        "Producción 72h",
+        "Entregado",
+      ];
+
+      function addProspect(e) {
+        e.preventDefault();
+        const today = new Date().toISOString().split("T")[0];
+        state.prospects.unshift({
+          id: "PR-" + Date.now().toString().slice(-4),
+          business: document.getElementById("crm-business").value.trim(),
+          contact:
+            document.getElementById("crm-contact").value.trim() || "Dueño/a",
+          phone: document.getElementById("crm-phone").value.replace(/\D/g, ""),
+          zone: document.getElementById("crm-zone").value,
+          rubro: document.getElementById("crm-rubro").value,
+          stage: document.getElementById("crm-stage").value,
+          amount: Number(document.getElementById("crm-amount").value) || 50000,
+          lastContactDate: today,
+          notes: "",
+        });
+        document.getElementById("crm-business").value = "";
+        document.getElementById("crm-contact").value = "";
+        document.getElementById("crm-phone").value = "";
+        saveState();
+        renderCRM();
+      }
+
+      function updateProspectStage(id, newStage) {
+        const p = state.prospects.find((x) => x.id === id);
+        if (!p) return;
+        p.stage = newStage;
+        p.lastContactDate = new Date().toISOString().split("T")[0];
+        saveState();
+        renderCRM();
+      }
+
+      function promoteToSLA(id) {
+        const p = state.prospects.find((x) => x.id === id);
+        if (!p) return;
+        state.slaProjects.unshift({
+          id: "SLA-" + Date.now().toString().slice(-4),
+          business: p.business,
+          phone: p.phone,
+          plan: `${p.rubro} (${formatARS(p.amount)})`,
+          checks: {
+            sena: p.stage === "Seña 50%" || p.stage === "Producción 72h",
+            logo: false,
+            lista: false,
+            fotos: false,
+            whatsapp: Boolean(p.phone),
+          },
+          slaStartedAt: null,
+          delivered: false,
+        });
+        p.stage = "Producción 72h";
+        saveState();
+        renderCRM();
+        renderSLA();
+        switchModule("sla");
+      }
+
+      function deleteProspect(id) {
+        state.prospects = state.prospects.filter((x) => x.id !== id);
+        saveState();
+        renderCRM();
+      }
+
+      function renderCRM() {
+        const zoneFilter = document.getElementById("filter-crm-zone").value;
+        const stageFilter = document.getElementById("filter-crm-stage").value;
+
+        const list = state.prospects.filter((p) => {
+          if (zoneFilter !== "all" && p.zone !== zoneFilter) return false;
+          if (stageFilter !== "all" && p.stage !== stageFilter) return false;
+          return true;
         });
 
-        if (document.getElementById("inp-domain").checked) {
-          total += 15000;
-          rows.push(
-            `<tr><td class="p-3 text-slate-700">+ Dominio propio (.com.ar / .com)</td><td class="p-3 font-semibold text-right">${ars(15000)}</td></tr>`,
-          );
-        } else {
-          rows.push(
-            `<tr><td class="p-3 text-slate-500">Subdominio .smartmenu.com.ar</td><td class="p-3 font-bold text-emerald-600 text-right">INCLUIDO</td></tr>`,
-          );
-        }
-
-        if (document.getElementById("inp-onsite").checked) {
-          rows.push(
-            `<tr><td class="p-3 text-slate-700">+ Capacitación presencial en local</td><td class="p-3 font-semibold text-slate-500 text-right">A cotizar</td></tr>`,
-          );
-        } else {
-          rows.push(
-            `<tr><td class="p-3 text-slate-500">Guía PDF de uso</td><td class="p-3 font-bold text-emerald-600 text-right">INCLUIDA</td></tr>`,
-          );
-        }
-
-        total += maint.price;
-        rows.push(
-          `<tr><td class="p-3 text-slate-700">${maint.label}</td><td class="p-3 font-bold text-right">${ars(maint.price)} ${maint.suffix}</td></tr>`,
-        );
-
-        document.getElementById("pdf-items").innerHTML = rows.join("");
-        document.getElementById("pdf-total").textContent = ars(total);
-        document.getElementById("pdf-maint-note").textContent =
-          maint.price > 0
-            ? `Incluye primer período de ${maint.label.toLowerCase()} (${ars(maint.price)} ${maint.suffix}).`
-            : "Sin abono mensual recurrente (solo setup inicial).";
-
-        const notas = document.getElementById("inp-notas").value.trim();
-        const notasBox = document.getElementById("pdf-notas-box");
-        if (notas) {
-          notasBox.textContent = "Condiciones / Notas: " + notas;
-          notasBox.classList.remove("hidden");
-        } else {
-          notasBox.classList.add("hidden");
-        }
-
-        document.getElementById("pdf-reqs").innerHTML = srv.reqs
-          .map((r) => `<li>${r}</li>`)
-          .join("");
-      }
-
-      function renderMessages() {
-        const c = document.getElementById("msg-cliente").value.trim() || "hola";
-        const saludo = c === "hola" ? "¡Hola!" : `¡Hola ${c}!`;
-        const b =
-          document.getElementById("msg-negocio").value.trim() || "tu negocio";
-        const r = document.getElementById("msg-rubro").value;
-        const m =
-          document.getElementById("msg-monto").value.trim() ||
-          "el plan elegido";
-
-        const templates = [
-          {
-            title: "1. Primer contacto (WhatsApp / IG)",
-            text: `${saludo} ¿Cómo andás? Te escribo de *SmartMenu*. Estuve viendo *${b}* y armamos *${r}* para que tus clientes consulten y pidan ordenado directo a tu WhatsApp, sin comisiones por venta y listo en 72 hs hábiles. ¿Querés que te pase una demo rápida para que lo pruebes?`,
-          },
-          {
-            title: "2. Respuesta cuando preguntan precio",
-            text: `${saludo} ¡Gracias por consultar por *${b}*! Los planes de *${r}* arrancan desde ${m} (pago único inicial), con 0% de comisiones por venta y entrega estimada en 72 hs hábiles una vez recibido el material. Si me contás un poco cómo trabajás hoy, te digo cuál te conviene más.`,
-          },
-          {
-            title: "3. Envío de presupuesto + pedido de material",
-            text: `${saludo} Te comparto el presupuesto formal de *${r}* para *${b}* (${m}), válido por 7 días corridos. Para arrancar apenas lo confirmemos, solo necesito que me pases:\n• Logo y colores de tu marca\n• Lista de ítems/servicios y precios en ARS\n• Fotos (si corresponde al plan)\n• Número de WhatsApp y horarios\n\nDesde que recibo todo completo, en 72 hs hábiles lo tenés listo.`,
-          },
-          {
-            title: "4. Seguimiento a las 48 horas",
-            text: `${saludo} ¿Pudiste ver la propuesta de *${r}* para *${b}*? Cualquier duda que tengas sobre cómo funciona o qué incluye, avisame y lo charlamos en un toque. Seguimos con el presupuesto vigente.`,
-          },
-          {
-            title: "5. Entrega final (Link, QR y Guía PDF)",
-            text: `${saludo} ¡Ya quedó listo y publicado el sistema de *${b}*! 🎉\n\n🔗 Enlace directo: https://\n📱 Te adjunto también el código QR listo para imprimir y la Guía PDF de uso.\n\nRevisalo tranquilo y avisame cualquier detalle que quieras ajustar antes de darlo por finalizado. ¡Muchos éxitos con las ventas!`,
-          },
-        ];
-
-        document.getElementById("messages-grid").innerHTML = templates
-          .map(
-            (t, idx) => `
-          <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex flex-col justify-between space-y-4">
-            <div>
-              <h3 class="font-extrabold text-sm text-slate-900 mb-2">${t.title}</h3>
-              <pre id="tpl-text-${idx}" class="whitespace-pre-wrap font-sans text-xs text-slate-700 bg-slate-50 border border-slate-200 rounded-xl p-3.5 leading-relaxed">${t.text}</pre>
-            </div>
-            <button
-              onclick="copyTextById('tpl-text-${idx}', this)"
-              class="self-end px-4 py-2 rounded-xl bg-slate-900 hover:bg-orange-500 text-white text-xs font-extrabold transition"
-            >
-              <i class="fa-regular fa-copy mr-1"></i> Copiar mensaje
-            </button>
-          </div>
-        `,
-          )
-          .join("");
-      }
-
-      // ====== GENERADOR DINÁMICO DE PROMPTS (IMAGEN / VIDEO / FLYER) ======
-      let lastGenerated = null;
-
-      function generateCustomPrompt() {
-        const idea = document.getElementById("gen-idea").value.trim();
-        if (!idea) {
-          alert(
-            "Escribí primero una idea o tema (ej: Promo viernes de pizzas).",
-          );
+        const container = document.getElementById("crm-list");
+        if (list.length === 0) {
+          container.innerHTML = `<p class="text-xs text-stone-500 dark:text-zinc-500 italic col-span-2 text-center py-6">No hay prospectos para los filtros seleccionados.</p>`;
           return;
         }
-        const srv = document.getElementById("gen-srv").value;
-        const fmt = document.getElementById("gen-format").value;
-        const style = document.getElementById("gen-style").value;
 
-        const styleDesc = {
-          photo:
-            "fotografía fotorrealista de estudio en ambiente comercial real de Tucumán, iluminación cálida profesional, profundidad de campo suave",
-          "3d": "ilustración 3D moderna y limpia sobre fondo oscuro pizarra (#0F172A) con acentos luminosos en naranja vibrante (#F97316) y verde esmeralda",
-          minimal:
-            "diseño gráfico minimalista ejecutivo con paleta limpia en blanco, gris pizarra oscuro y detalles en naranja vibrante (#F97316)",
-        }[style];
+        container.innerHTML = list
+          .map((p) => {
+            const days = diffDaysFromToday(p.lastContactDate);
+            let alertBadge = "";
+            if (p.stage === "Presupuesto 7d" && days >= 7) {
+              alertBadge = `<span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300">❌ Presupuesto vencido (${days}d)</span>`;
+            } else if (p.stage === "Presupuesto 7d" && days >= 6) {
+              alertBadge = `<span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300">⏳ Vence mañana (Día ${days}/7)</span>`;
+            } else if (
+              [
+                "Visitado / Volante dejado",
+                "Demo enviada",
+                "Presupuesto 7d",
+              ].includes(p.stage) &&
+              days >= 2
+            ) {
+              alertBadge = `<span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300">⚠️ ${days * 24}h sin seguimiento</span>`;
+            }
 
-        let promptText = "";
-        let tipBadge = "";
+            const waMsg = `Hola ${p.contact}, soy Santiago de SmartMenu Tucumán. Te escribo por *${p.business}* para saber si pudiste ver la demo de ${p.rubro} en smartmenu.com.ar. ¡Cualquier duda lo vemos sin compromiso!`;
 
-        if (fmt === "vid-916") {
-          tipBadge = "🎬 Video Vertical 9:16 • Poné 'Vertical' en Gemini";
-          promptText = `Video vertical 9:16 dinámico y fluido inspirado en: "${idea}", aplicado a ${srv} de SmartMenu. Estilo ${styleDesc}. En primer plano se observa un smartphone moderno mostrando una interfaz web rápida y ordenada con botones naranja vibrante y confirmación verde esmeralda. Movimiento de cámara suave hacia adelante (push-in), iluminación cinematográfica, sin textos ni letras superpuestas dentro del video.`;
-        } else if (fmt === "flyer-a6") {
-          tipBadge = "🖨️ Volante / Flyer A6 • Elegí '3:4' en Gemini";
-          promptText = `Relación de aspecto 3:4. Diseño gráfico publicitario vertical listo para imprenta (tamaño A6) sobre: "${idea}" para ${srv}. Estilo ${styleDesc}. Composición ordenada con un smartphone mostrando la solución web en funcionamiento, espacio para código QR nítido en esquina inferior y zonas superior e inferior despejadas para titular en español.`;
-        } else {
-          const ratio = fmt === "img-34" ? "3:4" : "1:1";
-          tipBadge = `🖼️ Imagen Instagram (${ratio}) • Elegí '${ratio}' en Gemini`;
-          promptText = `Relación de aspecto ${ratio}. Pieza visual profesional para Instagram sobre: "${idea}", destacando el servicio de ${srv}. Estilo ${styleDesc}. Un smartphone en primer plano muestra una experiencia web intuitiva, veloz y lista para enviar pedidos/consultas directo a WhatsApp, con identidad visual en tonos oscuros y naranja vibrante (#F97316). Sin textos largos superpuestos.`;
-        }
+            return `
+              <div class="p-4 rounded-2xl bg-stone-50 dark:bg-zinc-950 border border-stone-200 dark:border-zinc-800 flex flex-col justify-between gap-3">
+                <div>
+                  <div class="flex flex-wrap items-center justify-between gap-1.5 mb-1.5">
+                    <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">
+                      ${p.zone}
+                    </span>
+                    ${alertBadge}
+                  </div>
+                  <div class="flex items-start justify-between gap-2">
+                    <div>
+                      <h3 class="font-black text-sm text-stone-900 dark:text-white">${p.business}</h3>
+                      <p class="text-xs text-stone-500 dark:text-zinc-400">${p.contact} • ${p.rubro}</p>
+                    </div>
+                    <span class="font-black text-sm text-orange-600 dark:text-orange-400">${formatARS(p.amount)}</span>
+                  </div>
+                </div>
 
-        const copyText = `🚀 ${idea}\n\nModernizá tu negocio con ${srv} de SmartMenu: tus clientes eligen fácil desde su celular y te llega todo ordenado directo a tu WhatsApp, sin comisiones por venta y listo en 72 hs hábiles.\n\n👉 Probá las demos en vivo: smartmenu.com.ar\n📲 Consultas Tucumán y todo el país: 381 632-0130\n\n#SmartMenu #Tucuman #SanMiguelDeTucuman #NegociosDigitales #VentasPorWhatsApp #EmprenderEnTucuman`;
+                <div class="space-y-2 pt-2 border-t border-stone-200 dark:border-zinc-800">
+                  <div class="flex items-center justify-between gap-2">
+                    <select
+                      onchange="updateProspectStage('${p.id}', this.value)"
+                      class="min-h-[36px] px-2.5 py-1 rounded-xl border border-stone-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-xs font-extrabold"
+                    >
+                      ${STAGES.map(
+                        (st) =>
+                          `<option value="${st}" ${p.stage === st ? "selected" : ""}>${st}</option>`,
+                      ).join("")}
+                    </select>
+                    <span class="text-[10px] text-stone-400">Últ. contacto: hace ${days}d</span>
+                  </div>
 
-        lastGenerated = {
-          idea,
-          srv,
-          tipBadge,
-          prompt: promptText,
-          copy: copyText,
-        };
-
-        document.getElementById("gen-tip-badge").textContent = tipBadge;
-        document.getElementById("gen-out-prompt").textContent = promptText;
-        document.getElementById("gen-out-copy").textContent = copyText;
-        document.getElementById("gen-result").classList.remove("hidden");
-        document.getElementById("btn-save-custom").classList.remove("hidden");
-      }
-
-      function saveCustomPrompt() {
-        if (!lastGenerated) return;
-        const saved = JSON.parse(
-          localStorage.getItem("agency_saved_prompts") || "[]",
-        );
-        saved.unshift({ ...lastGenerated, id: Date.now() });
-        localStorage.setItem("agency_saved_prompts", JSON.stringify(saved));
-        renderSavedPrompts();
-      }
-
-      function deleteSavedPrompt(id) {
-        const saved = JSON.parse(
-          localStorage.getItem("agency_saved_prompts") || "[]",
-        ).filter((item) => item.id !== id);
-        localStorage.setItem("agency_saved_prompts", JSON.stringify(saved));
-        renderSavedPrompts();
-      }
-
-      function renderSavedPrompts() {
-        const saved = JSON.parse(
-          localStorage.getItem("agency_saved_prompts") || "[]",
-        );
-        const sec = document.getElementById("saved-prompts-section");
-        const grid = document.getElementById("saved-prompts-grid");
-        if (!saved.length) {
-          sec.classList.add("hidden");
-          return;
-        }
-        sec.classList.remove("hidden");
-        grid.innerHTML = saved
-          .map(
-            (s, i) => `
-          <div class="bg-white border border-orange-200 rounded-2xl p-4 shadow-sm space-y-3">
-            <div class="flex items-center justify-between gap-2">
-              <span class="text-[11px] font-extrabold text-orange-600 uppercase">${s.tipBadge}</span>
-              <button onclick="deleteSavedPrompt(${s.id})" class="text-xs text-slate-400 hover:text-rose-600" title="Eliminar">
-                <i class="fa-solid fa-trash"></i>
-              </button>
-            </div>
-            <p class="font-black text-sm text-slate-900">${s.idea} <span class="font-normal text-slate-500">(${s.srv})</span></p>
-            <p id="sav-prm-${i}" class="text-xs text-slate-700 bg-slate-50 border border-slate-200 rounded-xl p-3">${s.prompt}</p>
-            <pre id="sav-cpy-${i}" class="whitespace-pre-wrap font-sans text-xs text-slate-700 bg-slate-50 border border-slate-200 rounded-xl p-3">${s.copy}</pre>
-            <div class="flex justify-end gap-2">
-              <button onclick="copyTextById('sav-prm-${i}', this)" class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-orange-500 text-white text-xs font-bold">Copiar Prompt</button>
-              <button onclick="copyTextById('sav-cpy-${i}', this)" class="px-3 py-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold">Copiar Copy</button>
-            </div>
-          </div>
-        `,
-          )
-          .join("");
-      }
-
-      function renderSalesAndPrompts() {
-        // Manual de Servicios y Límites
-        document.getElementById("services-manual-grid").innerHTML =
-          SERVICES_MANUAL.map(
-            (s) => `
-          <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-3 text-xs">
-            <h3 class="font-black text-base text-slate-900">${s.title}</h3>
-            <div>
-              <p class="font-extrabold text-slate-700 uppercase text-[10px]">🎯 A quién se lo vendo:</p>
-              <p class="text-slate-600 mt-0.5 leading-relaxed">${s.target}</p>
-            </div>
-            <div>
-              <p class="font-extrabold text-slate-700 uppercase text-[10px]">📦 Planes y diferencias:</p>
-              <pre class="whitespace-pre-wrap font-sans text-slate-700 mt-0.5 leading-relaxed">${s.plans}</pre>
-            </div>
-            <div class="bg-rose-50/70 border border-rose-200 rounded-xl p-3">
-              <p class="font-extrabold text-rose-800 uppercase text-[10px] mb-1">🚫 Límites clave (Qué NO incluye):</p>
-              <ul class="list-disc pl-4 space-y-1 text-rose-900/90 leading-relaxed">
-                ${s.limits.map((l) => `<li>${l}</li>`).join("")}
-              </ul>
-            </div>
-          </div>
-        `,
-          ).join("");
-
-        // Objeciones
-        document.getElementById("objections-grid").innerHTML = OBJECTIONS.map(
-          (o, i) => `
-          <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex flex-col justify-between space-y-3">
-            <div>
-              <h4 class="font-black text-sm text-slate-900 mb-2">${o.q}</h4>
-              <p id="obj-text-${i}" class="text-xs text-slate-700 bg-slate-50 border border-slate-200 rounded-xl p-3.5 leading-relaxed">${o.a}</p>
-            </div>
-            <button
-              onclick="copyTextById('obj-text-${i}', this)"
-              class="self-end px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-orange-500 text-white text-xs font-extrabold transition"
-            >
-              <i class="fa-regular fa-copy mr-1"></i> Copiar respuesta
-            </button>
-          </div>
-        `,
-        ).join("");
-
-        // Flyers
-        document.getElementById("flyers-grid").innerHTML = FLYERS.map(
-          (f, i) => `
-          <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 flex flex-col justify-between space-y-4">
-            <div class="space-y-3">
-              <h3 class="font-black text-sm text-slate-900">${f.title}</h3>
-              <div id="flyer-copy-${i}" class="bg-white border border-slate-200 rounded-xl p-3.5 text-xs space-y-2">
-                <p class="font-black text-orange-600 text-sm">${f.headline}</p>
-                <pre class="whitespace-pre-wrap font-sans text-slate-700 leading-relaxed">${f.body}</pre>
-              </div>
-              <div>
-                <p class="text-[11px] font-bold uppercase text-slate-400 mb-1">Prompt para fondo gráfico en Gemini:</p>
-                <p id="flyer-prm-${i}" class="text-xs text-slate-600 bg-white border border-slate-200 rounded-xl p-3 italic">${f.prompt}</p>
-              </div>
-            </div>
-            <div class="flex flex-wrap justify-end gap-2">
-              <button
-                onclick="copyTextById('flyer-copy-${i}', this)"
-                class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-orange-500 text-white text-xs font-extrabold transition"
-              >
-                <i class="fa-regular fa-copy mr-1"></i> Copiar texto
-              </button>
-              <button
-                onclick="copyTextById('flyer-prm-${i}', this)"
-                class="px-3.5 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-extrabold transition"
-              >
-                <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> Copiar prompt
-              </button>
-            </div>
-          </div>
-        `,
-        ).join("");
-
-        filterPrompts("all");
-        renderSavedPrompts();
-      }
-
-      function filterPrompts(cat) {
-        ["all", "menu", "catalogo", "turnos", "gestion", "video"].forEach(
-          (k) => {
-            const btn = document.getElementById(`flt-${k}`);
-            btn.className =
-              k === cat
-                ? "px-3 py-1.5 rounded-lg font-bold bg-orange-500 text-white"
-                : "px-3 py-1.5 rounded-lg font-bold bg-slate-100 text-slate-700 hover:bg-slate-200";
-          },
-        );
-
-        const list =
-          cat === "all"
-            ? MONTHLY_PROMPTS
-            : MONTHLY_PROMPTS.filter((p) => p.cat === cat);
-        document.getElementById("prompts-grid").innerHTML = list
-          .map(
-            (p, idx) => `
-          <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex flex-col justify-between space-y-4">
-            <div class="space-y-3">
-              <div class="flex items-center justify-between gap-2">
-                <span class="text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
-                  p.cat === "video"
-                    ? "bg-purple-50 text-purple-700 border border-purple-200"
-                    : "bg-orange-50 text-orange-700 border border-orange-200"
-                }">
-                  ${p.badge}
-                </span>
-              </div>
-              <h3 class="font-black text-base text-slate-900">${p.title}</h3>
-
-              <div>
-                <p class="text-[11px] font-bold uppercase text-slate-400 mb-1">${
-                  p.cat === "video"
-                    ? "🎬 Prompt para Gemini Video (Vertical):"
-                    : "🎨 Prompt para Gemini Imágenes:"
-                }</p>
-                <p id="prm-vis-${idx}" class="text-xs text-slate-700 bg-slate-50 border border-slate-200 rounded-xl p-3 leading-relaxed">${p.prompt}</p>
-              </div>
-
-              <div>
-                <p class="text-[11px] font-bold uppercase text-slate-400 mb-1">📝 Copy + Hashtags:</p>
-                <div id="prm-cpy-${idx}" class="text-xs text-slate-700 bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-1.5 leading-relaxed">
-                  <p>${p.copy}</p>
-                  <p class="text-orange-600 font-semibold">${p.tags}</p>
+                  <div class="flex flex-wrap items-center justify-between gap-2">
+                    <a
+                      href="https://wa.me/54${p.phone}?text=${encodeURIComponent(waMsg)}"
+                      target="_blank"
+                      class="min-h-[36px] px-3 py-1.5 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366]/25 text-emerald-900 dark:text-[#25D366] text-xs font-extrabold flex items-center gap-1.5"
+                    >
+                      <i class="fa-brands fa-whatsapp"></i> Seguimiento
+                    </a>
+                    <div class="flex items-center gap-1.5">
+                      <button
+                        onclick="promoteToSLA('${p.id}')"
+                        title="Pasar a tablero de producción 72 hs"
+                        class="min-h-[36px] px-2.5 py-1.5 rounded-xl bg-emerald-800 hover:bg-emerald-700 text-white text-[11px] font-extrabold"
+                      >
+                        → Producción 72h
+                      </button>
+                      <button
+                        onclick="deleteProspect('${p.id}')"
+                        aria-label="Eliminar"
+                        class="min-h-[36px] w-9 rounded-xl bg-stone-200 dark:bg-zinc-800 hover:bg-red-600 hover:text-white text-stone-600 dark:text-zinc-400 text-xs"
+                      >
+                        <i class="fa-solid fa-trash"></i>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
+            `;
+          })
+          .join("");
+      }
 
-            <div class="flex flex-wrap justify-end gap-2">
-              <button
-                onclick="copyTextById('prm-vis-${idx}', this)"
-                class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-orange-500 text-white text-xs font-extrabold transition"
-              >
-                <i class="fa-regular fa-copy mr-1"></i> Copiar Prompt
-              </button>
-              <button
-                onclick="copyTextById('prm-cpy-${idx}', this)"
-                class="px-3.5 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-xs font-extrabold transition"
-              >
-                <i class="fa-regular fa-copy mr-1"></i> Copiar Copy
-              </button>
-            </div>
-          </div>
-        `,
+      // =========================================================
+      // MÓDULO B: REQUISITOS BLOQUEANTES & SLA 72 HS
+      // =========================================================
+      const REQ_LABELS = {
+        sena: "1. Seña 50% acreditada",
+        logo: "2. Logotipo legible recibido",
+        lista: "3. Lista definitiva / horarios en ARS",
+        fotos: "4. Fotos autorizadas (o sin fotos)",
+        whatsapp: "5. WhatsApp receptor confirmado",
+      };
+
+      function toggleSLACheck(projectId, key) {
+        const proj = state.slaProjects.find((p) => p.id === projectId);
+        if (!proj) return;
+        proj.checks[key] = !proj.checks[key];
+        const allReady = Object.values(proj.checks).every(Boolean);
+        if (allReady && !proj.slaStartedAt) {
+          proj.slaStartedAt = new Date().toISOString();
+        } else if (!allReady) {
+          proj.slaStartedAt = null;
+        }
+        saveState();
+        renderSLA();
+      }
+
+      function markSLADelivered(projectId) {
+        const proj = state.slaProjects.find((p) => p.id === projectId);
+        if (!proj) return;
+        proj.delivered = !proj.delivered;
+        saveState();
+        renderSLA();
+      }
+
+      function addDemoSLAProject() {
+        const business = prompt(
+          "Nombre del comercio o profesional para producción:",
+        );
+        if (!business) return;
+        const phone =
+          prompt("WhatsApp del cliente (ej: 3815551234):", "3815551234") || "";
+        const plan =
+          prompt("Plan contratado:", "Menú Moderno ($50.000)") || "Plan Web";
+        state.slaProjects.unshift({
+          id: "SLA-" + Date.now().toString().slice(-4),
+          business: business.trim(),
+          phone: phone.replace(/\D/g, ""),
+          plan,
+          checks: {
+            sena: true,
+            logo: false,
+            lista: false,
+            fotos: false,
+            whatsapp: true,
+          },
+          slaStartedAt: null,
+          delivered: false,
+        });
+        saveState();
+        renderSLA();
+      }
+
+      function renderSLA() {
+        const container = document.getElementById("sla-projects-list");
+        if (state.slaProjects.length === 0) {
+          container.innerHTML = `<p class="text-xs text-stone-500 italic col-span-2 text-center py-6">No hay proyectos en producción.</p>`;
+          return;
+        }
+
+        container.innerHTML = state.slaProjects
+          .map((proj) => {
+            const missingKeys = Object.keys(REQ_LABELS).filter(
+              (k) => !proj.checks[k],
+            );
+            const allReady = missingKeys.length === 0;
+
+            let statusPill = "";
+            if (proj.delivered) {
+              statusPill = `<span class="text-[10px] font-black px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">✅ Entregado</span>`;
+            } else if (allReady) {
+              const hoursElapsed = Math.floor(
+                (Date.now() - new Date(proj.slaStartedAt).getTime()) /
+                  (1000 * 60 * 60),
+              );
+              statusPill = `<span class="text-[10px] font-black px-2.5 py-1 rounded-full bg-orange-100 dark:bg-orange-500/20 text-orange-700 dark:text-orange-300">⏱️ SLA 72h Activo (${hoursElapsed}h transcurridas)</span>`;
+            } else {
+              statusPill = `<span class="text-[10px] font-black px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300">⏸️ SLA Pausado (Faltan ${missingKeys.length} req.)</span>`;
+            }
+
+            const missingNames = missingKeys.map((k) =>
+              REQ_LABELS[k].replace(/^\d+\.\s*/, ""),
+            );
+            const waReminder = `Hola! Para activar el plazo de entrega de *72 horas hábiles* de *${proj.business}* en SmartMenu, solo nos está faltando recibir:\n\n${missingNames
+              .map((m) => `▪️ ${m}`)
+              .join("\n")}\n\n¡Apenas me lo pases arrancamos!`;
+
+            return `
+              <div class="p-4 rounded-2xl bg-stone-50 dark:bg-zinc-950 border border-stone-200 dark:border-zinc-800 space-y-3">
+                <div class="flex flex-wrap items-start justify-between gap-2">
+                  <div>
+                    <h3 class="font-black text-sm text-stone-900 dark:text-white">${proj.business}</h3>
+                    <p class="text-xs text-stone-500 dark:text-zinc-400">${proj.plan}</p>
+                  </div>
+                  ${statusPill}
+                </div>
+
+                <div class="space-y-1.5 pt-2 border-t border-stone-200 dark:border-zinc-800">
+                  ${Object.entries(REQ_LABELS)
+                    .map(
+                      ([key, label]) => `
+                    <label class="flex items-center gap-2.5 text-xs font-bold cursor-pointer py-1">
+                      <input
+                        type="checkbox"
+                        ${proj.checks[key] ? "checked" : ""}
+                        onchange="toggleSLACheck('${proj.id}', '${key}')"
+                        class="w-4 h-4 accent-emerald-600 rounded"
+                      />
+                      <span class="${
+                        proj.checks[key]
+                          ? "line-through text-stone-400 dark:text-zinc-500"
+                          : "text-stone-800 dark:text-zinc-200"
+                      }">${label}</span>
+                    </label>
+                  `,
+                    )
+                    .join("")}
+                </div>
+
+                <div class="pt-2 border-t border-stone-200 dark:border-zinc-800 flex flex-wrap items-center justify-between gap-2">
+                  ${
+                    !allReady
+                      ? `<a
+                           href="https://wa.me/54${proj.phone}?text=${encodeURIComponent(waReminder)}"
+                           target="_blank"
+                           class="min-h-[38px] px-3 py-1.5 rounded-xl bg-[#25D366]/15 hover:bg-[#25D366]/25 text-emerald-900 dark:text-[#25D366] text-xs font-extrabold flex items-center gap-1.5"
+                         >
+                           <i class="fa-brands fa-whatsapp"></i> Pedir faltantes por WhatsApp
+                         </a>`
+                      : `<span class="text-[11px] font-bold text-emerald-700 dark:text-emerald-400">Todos los insumos completos.</span>`
+                  }
+
+                  <button
+                    onclick="markSLADelivered('${proj.id}')"
+                    class="min-h-[38px] px-3 py-1.5 rounded-xl bg-stone-200 dark:bg-zinc-800 hover:bg-emerald-700 hover:text-white text-xs font-extrabold transition"
+                  >
+                    ${proj.delivered ? "Reabrir" : "Marcar Entregado"}
+                  </button>
+                </div>
+              </div>
+            `;
+          })
+          .join("");
+      }
+
+      // =========================================================
+      // MÓDULO C: FINANZAS, ABONOS Y ARCA
+      // =========================================================
+      function renderFinance() {
+        const catALimit = 12009410.45;
+        const pct = Math.min(
+          100,
+          Math.round((state.billed12m / catALimit) * 100),
+        );
+        const bar = document.getElementById("arca-progress-bar");
+        bar.style.width = `${pct}%`;
+        bar.className =
+          pct >= 85
+            ? "h-full bg-red-500 transition-all duration-300"
+            : pct >= 65
+              ? "h-full bg-amber-500 transition-all duration-300"
+              : "h-full bg-emerald-500 transition-all duration-300";
+
+        document.getElementById("arca-billed-label").innerText =
+          `Facturado 12m: ${formatARS(state.billed12m)}`;
+        document.getElementById("arca-status-badge").innerText =
+          pct >= 85
+            ? `⚠️ Atención: ${pct}% del tope Cat. A`
+            : `Saludable (${pct}% de Cat. A)`;
+
+        document.getElementById("ops-usd-input").value = state.usdRate;
+
+        const container = document.getElementById("subscriptions-list");
+        container.innerHTML = state.subscriptions
+          .map((sub) => {
+            const overdueDays = diffDaysFromToday(sub.nextDueDate);
+            const isOverdue = overdueDays > 10;
+            const limitReached = sub.requestsUsed >= sub.requestsLimit;
+
+            const waPay = `Hola! Te recuerdo amablemente el vencimiento del abono de mantenimiento web de *${sub.business}* (${formatARS(sub.amount)}) en SmartMenu. ¡Cualquier consulta avisame!`;
+
+            return `
+              <div class="p-4 rounded-2xl bg-stone-50 dark:bg-zinc-950 border ${
+                isOverdue
+                  ? "border-red-400 dark:border-red-800"
+                  : "border-stone-200 dark:border-zinc-800"
+              } space-y-3">
+                <div class="flex items-start justify-between gap-2">
+                  <div>
+                    <h4 class="font-black text-sm text-stone-900 dark:text-white">${sub.business}</h4>
+                    <p class="text-xs text-stone-500 dark:text-zinc-400">${sub.planType} • Vence: ${sub.nextDueDate}</p>
+                  </div>
+                  ${
+                    isOverdue
+                      ? `<span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300">Mora ${overdueDays}d</span>`
+                      : `<span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">Al día</span>`
+                  }
+                </div>
+
+                <div class="p-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-stone-200 dark:border-zinc-800 flex items-center justify-between">
+                  <div>
+                    <span class="block text-[10px] font-bold uppercase text-stone-400">Cambios del mes</span>
+                    <span class="text-xs font-black ${
+                      limitReached
+                        ? "text-amber-600 dark:text-amber-400"
+                        : "text-stone-900 dark:text-white"
+                    }">${sub.requestsUsed} / ${sub.requestsLimit} usados</span>
+                  </div>
+                  <div class="flex gap-1">
+                    <button
+                      onclick="incrementSubRequest('${sub.id}')"
+                      class="min-h-[34px] px-2.5 py-1 rounded-lg bg-orange-500 hover:bg-orange-600 text-white text-[11px] font-extrabold"
+                    >+1 Cambio</button>
+                    <button
+                      onclick="resetSubRequests('${sub.id}')"
+                      title="Reiniciar mes"
+                      class="min-h-[34px] px-2 py-1 rounded-lg bg-stone-200 dark:bg-zinc-800 text-[11px] font-bold"
+                    >0</button>
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between gap-2 pt-1">
+                  <a
+                    href="https://wa.me/54${sub.phone}?text=${encodeURIComponent(waPay)}"
+                    target="_blank"
+                    class="text-xs font-extrabold text-[#1da851] dark:text-[#25D366] hover:underline"
+                  >
+                    <i class="fa-brands fa-whatsapp"></i> Recordar pago
+                  </a>
+                  <button
+                    onclick="renewSubscriptionMonth('${sub.id}')"
+                    class="min-h-[34px] px-2.5 py-1 rounded-lg bg-emerald-800 hover:bg-emerald-700 text-white text-[11px] font-extrabold"
+                  >
+                    Registrar Cobro (+30d)
+                  </button>
+                </div>
+              </div>
+            `;
+          })
+          .join("");
+      }
+
+      function addBilledAmount() {
+        const val = Number(document.getElementById("arca-extra-input").value);
+        if (!val) return;
+        state.billed12m = Math.max(0, state.billed12m + val);
+        document.getElementById("arca-extra-input").value = "";
+        saveState();
+        renderFinance();
+      }
+
+      function saveOpsUsdRate() {
+        const val = Number(document.getElementById("ops-usd-input").value);
+        if (val > 0) {
+          state.usdRate = val;
+          saveState();
+          alert(
+            `Cotización guardada en $${val} ARS. Recordá reflejarlo en config.js.`,
+          );
+        }
+      }
+
+      function incrementSubRequest(id) {
+        const sub = state.subscriptions.find((s) => s.id === id);
+        if (!sub) return;
+        sub.requestsUsed += 1;
+        saveState();
+        renderFinance();
+      }
+
+      function resetSubRequests(id) {
+        const sub = state.subscriptions.find((s) => s.id === id);
+        if (!sub) return;
+        sub.requestsUsed = 0;
+        saveState();
+        renderFinance();
+      }
+
+      function renewSubscriptionMonth(id) {
+        const sub = state.subscriptions.find((s) => s.id === id);
+        if (!sub) return;
+        sub.nextDueDate = daysFromNowISO(30);
+        state.billed12m += sub.amount;
+        saveState();
+        renderFinance();
+      }
+
+      function addDemoSubscription() {
+        const business = prompt("Nombre del cliente abonado:");
+        if (!business) return;
+        const phone = prompt("WhatsApp (ej: 3815551234):", "3815551234") || "";
+        state.subscriptions.unshift({
+          id: "SUB-" + Date.now().toString().slice(-4),
+          business: business.trim(),
+          phone: phone.replace(/\D/g, ""),
+          planType: "Mensual ($20.000)",
+          amount: 20000,
+          nextDueDate: daysFromNowISO(30),
+          requestsUsed: 0,
+          requestsLimit: 4,
+        });
+        saveState();
+        renderFinance();
+      }
+
+      // =========================================================
+      // MÓDULO D: MARKETING, GRILLA 16 PIEZAS, UTM Y ROI
+      // =========================================================
+      const SCRIPTS = {
+        gastro: `Hola! ¿Cómo estás? Soy Santiago de SmartMenu Tucumán. Vi el local y te muestro rápido cómo otros bares y sangucherías están recibiendo pedidos armados por WhatsApp (o por número de mesa) sin pagar el 25%–35% de comisión de las apps. Te armamos la carta web en 72 hs desde $30.000 por única vez. Mirá la demo en vivo acá: https://smartmenu.com.ar/demo_moderno.html`,
+        gym: `Hola! ¿Cómo estás? Soy Santiago de SmartMenu Tucumán. Armamos sistemas web de reservas y control de cupos por clase para gimnasios en pesos argentinos (pago único desde $35.000 o $75.000 con panel dueño), para que no tengas que pagar abonos mensuales en dólares. Podés probar cómo descuenta cupos en vivo acá: https://smartmenu.com.ar/turnos.html`,
+        salud: `Hola! Soy Santiago de SmartMenu Tucumán. Desarrollamos agendas web personalizadas para consultorios y profesores particulares donde tus pacientes o alumnos reservan solos según tus horarios disponibles y te llega todo confirmado a WhatsApp, sin comisiones por turno. Mirá ejemplos acá: https://smartmenu.com.ar/turnos.html`,
+        ruta: `Hola! Soy Santiago de SmartMenu Tucumán (estamos acá cerca de Circunvalación). Te dejo nuestro catálogo digital para repuestos, lubricentros y comercios: tus clientes buscan el producto desde el celular y te mandan la consulta lista a WhatsApp sin que tengas que mandar 20 fotos sueltas. Miralo acá: https://smartmenu.com.ar/catalogos.html`,
+      };
+
+      function selectScript(key) {
+        ["gastro", "gym", "salud", "ruta"].forEach((k) => {
+          const btn = document.getElementById(`scr-${k}`);
+          btn.className =
+            k === key
+              ? "min-h-[38px] px-3 py-1.5 rounded-xl text-xs font-extrabold bg-orange-500 text-white"
+              : "min-h-[38px] px-3 py-1.5 rounded-xl text-xs font-extrabold bg-stone-100 dark:bg-zinc-800 text-stone-700 dark:text-zinc-300";
+        });
+        document.getElementById("script-box").value = SCRIPTS[key];
+      }
+
+      function buildUTMLink() {
+        const base = document.getElementById("utm-page").value;
+        const source = document.getElementById("utm-source").value;
+        const camp = encodeURIComponent(
+          document.getElementById("utm-campaign").value.trim() || "smartmenu",
+        );
+        document.getElementById("utm-output").value =
+          `${base}?utm_source=${source}&utm_medium=social&utm_campaign=${camp}`;
+      }
+
+      function calcAdROI() {
+        const spend = Number(document.getElementById("roi-spend").value) || 0;
+        const chats = Number(document.getElementById("roi-chats").value) || 0;
+        const sales = Number(document.getElementById("roi-sales").value) || 0;
+        const cpc = chats > 0 ? Math.round(spend / chats) : 0;
+        const net = sales - spend;
+        document.getElementById("roi-result-box").innerHTML = `
+          <span>Costo por chat: <strong class="text-orange-600 dark:text-orange-400">${formatARS(cpc)}</strong></span>
+          <span>Balance neto: <strong class="${
+            net >= 0 ? "text-emerald-700 dark:text-emerald-400" : "text-red-500"
+          }">${formatARS(net)}</strong></span>
+        `;
+      }
+
+      function updateMarketingStatus(id, status) {
+        const item = state.marketingGrid.find((m) => m.id === id);
+        if (!item) return;
+        item.status = status;
+        saveState();
+        renderMarketing();
+      }
+
+      function renderMarketing() {
+        const statuses = [
+          "Idea",
+          "Generado",
+          "Textos y Logo integrados",
+          "Programado Meta Business",
+          "Publicado",
+        ];
+        const published = state.marketingGrid.filter(
+          (m) => m.status === "Publicado",
+        ).length;
+        document.getElementById("mkt-progress-pill").innerText =
+          `${published} / ${state.marketingGrid.length} publicadas`;
+
+        document.getElementById("mkt-grid-body").innerHTML = state.marketingGrid
+          .map(
+            (m) => `
+            <tr class="hover:bg-stone-50 dark:hover:bg-zinc-950/60">
+              <td class="py-2.5 px-2 font-black whitespace-nowrap text-stone-900 dark:text-white">${m.when}</td>
+              <td class="py-2.5 px-2 font-bold text-orange-600 dark:text-orange-400 whitespace-nowrap">${m.rubro}</td>
+              <td class="py-2.5 px-2 text-stone-500 dark:text-zinc-400 whitespace-nowrap">${m.format}</td>
+              <td class="py-2.5 px-2 font-semibold text-stone-800 dark:text-zinc-200">${m.title}</td>
+              <td class="py-2.5 px-2">
+                <select
+                  onchange="updateMarketingStatus(${m.id}, this.value)"
+                  class="min-h-[34px] px-2.5 py-1 rounded-xl border border-stone-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-[11px] font-extrabold"
+                >
+                  ${statuses
+                    .map(
+                      (st) =>
+                        `<option value="${st}" ${m.status === st ? "selected" : ""}>${st}</option>`,
+                    )
+                    .join("")}
+                </select>
+              </td>
+            </tr>
+          `,
           )
           .join("");
       }
 
-      function copyTextById(id, btn) {
-        const txt = document.getElementById(id).innerText;
-        navigator.clipboard.writeText(txt);
-        const orig = btn.innerHTML;
-        btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Copiado';
-        setTimeout(() => (btn.innerHTML = orig), 1500);
+      function copyTextById(id) {
+        const el = document.getElementById(id);
+        el.select();
+        navigator.clipboard.writeText(el.value);
+        alert("Copiado al portapapeles.");
       }
 
-      initLock();
-      newQuoteNumber();
-      onServiceChange();
-      renderMessages();
-      renderSalesAndPrompts();
+      // =========================================================
+      // EXPORTACIÓN / IMPORTACIÓN BACKUP
+      // =========================================================
+      function exportJSONBackup() {
+        const blob = new Blob([JSON.stringify(state, null, 2)], {
+          type: "application/json",
+        });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `agency-smart-backup-${new Date().toISOString().split("T")[0]}.json`;
+        a.click();
+      }
+
+      function importJSONBackup(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const parsed = JSON.parse(e.target.result);
+            state = { ...JSON.parse(JSON.stringify(DEFAULT_STATE)), ...parsed };
+            saveState();
+            renderAll();
+            alert("Respaldo restaurado con éxito.");
+          } catch {
+            alert("El archivo JSON no tiene un formato válido.");
+          }
+        };
+        reader.readAsText(file);
+      }
+
+      function exportCRMCSV() {
+        const headers = [
+          "ID",
+          "Negocio",
+          "Contacto",
+          "Telefono",
+          "Zona",
+          "Rubro",
+          "Etapa",
+          "Monto",
+          "UltimoContacto",
+        ];
+        const rows = state.prospects.map((p) =>
+          [
+            p.id,
+            p.business,
+            p.contact,
+            p.phone,
+            p.zone,
+            p.rubro,
+            p.stage,
+            p.amount,
+            p.lastContactDate,
+          ]
+            .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+            .join(","),
+        );
+        const csv = [headers.join(","), ...rows].join("\n");
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `smartmenu-crm-${new Date().toISOString().split("T")[0]}.csv`;
+        a.click();
+      }
+
+      function renderAll() {
+        updateGlobalKPIs();
+        renderCRM();
+        renderSLA();
+        renderFinance();
+        renderMarketing();
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        updateThemeIcon();
+        selectScript("gastro");
+        buildUTMLink();
+        calcAdROI();
+        renderAll();
+      });
     </script>
   </body>
 </html>
